@@ -306,7 +306,7 @@ healthcare-risk-triage-ai/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/healthcare-risk-triage-ai.git
+git clone https://github.com/achyut777/healthcare-risk-triage-ai.git
 cd healthcare-risk-triage-ai
 
 # Create virtual environment
@@ -475,14 +475,17 @@ Visit `http://localhost:8000/docs` for Swagger UI documentation.
 2. **60% rule-based + 40% ML** hybrid for transparency
 3. **Mandatory disclaimers** embedded at every level
 4. **Healthcare worker focus**, not patient-facing
-5. **36-hour buildable** architecture
 
 ---
 
 ## 👥 Team & Acknowledgments
 
 ### Team
-- [Team Member Names]
+- Leader :- Shiv Jani
+- Members:
+- Achyut Hadavani
+- Rachana Chauhan 
+- Harshita Gupta
 
 ### Acknowledgments
 - WHO vital sign reference guidelines
@@ -495,14 +498,6 @@ Visit `http://localhost:8000/docs` for Swagger UI documentation.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
 
-## 📞 Contact
-
-For questions or collaborations, please reach out to:
-- Email: [your-email@example.com]
-- GitHub: [your-github-profile]
-
----
 
 > **Remember:** This system assists healthcare workers in prioritization decisions. It does NOT diagnose diseases or replace medical professionals. Always consult qualified healthcare providers for medical advice.
