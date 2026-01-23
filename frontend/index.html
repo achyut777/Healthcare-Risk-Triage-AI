@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthTriage AI | Smart Patient Prioritization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0d4f6e 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-secondary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+        }
+        
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .feature-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+        
+        .stat-counter {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+        }
+    </style>
+</head>
+<body class="bg-white">
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-xl">
+                        <i class="fas fa-heartbeat text-xl text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">HealthTriage<span class="text-blue-600">AI</span></span>
+                </div>
+                
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-gray-600 hover:text-blue-600 transition">Features</a>
+                    <a href="#how-it-works" class="text-gray-600 hover:text-blue-600 transition">How It Works</a>
+                    <a href="#about" class="text-gray-600 hover:text-blue-600 transition">About</a>
+                    <a href="patient-portal.html" class="text-gray-600 hover:text-blue-600 transition">Patient Portal</a>
+                </div>
+                
+                <!-- CTA Buttons -->
+                <div class="flex items-center space-x-4">
+                    <a href="login.html" class="text-gray-600 hover:text-blue-600 font-medium transition">Staff Login</a>
+                    <a href="dashboard.html" class="btn-primary text-white px-5 py-2.5 rounded-lg font-medium">
+                        Start Assessment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-gradient min-h-screen flex items-center relative overflow-hidden pt-20">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl float-animation"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl float-animation" style="animation-delay: -3s;"></div>
+            <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl float-animation" style="animation-delay: -1.5s;"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left Content -->
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+                        <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                        <span class="text-blue-200 text-sm">AI-Powered Clinical Decision Support</span>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                        Smarter Triage,<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                            Better Patient Care
+                        </span>
+                    </h1>
+                    
+                    <p class="text-lg text-blue-100 mb-8 max-w-xl mx-auto lg:mx-0">
+                        AI-assisted patient prioritization for Primary Healthcare Centers. 
+                        Reduce waiting times, identify urgent cases faster, and support clinical decisions 
+                        with transparent, explainable risk assessment.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
+                        <a href="login.html" class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center space-x-2">
+                            <span>Start Assessment</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="#how-it-works" class="btn-secondary text-white px-8 py-4 rounded-xl font-medium border border-white/30 flex items-center space-x-2">
+                            <i class="fas fa-play-circle"></i>
+                            <span>See How It Works</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Trust Badges -->
+                    <div class="flex items-center justify-center lg:justify-start space-x-6 text-blue-200 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt mr-2 text-green-400"></i>
+                            <span>HIPAA Compliant Design</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-lock mr-2 text-green-400"></i>
+                            <span>Secure & Private</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Content - Dashboard Preview -->
+                <div class="hidden lg:block relative">
+                    <div class="relative">
+                        <!-- Glowing Background -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-3xl blur-3xl"></div>
+                        
+                        <!-- Dashboard Card -->
+                        <div class="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 float-animation pulse-glow">
+                            <div class="bg-gray-900/80 rounded-xl p-4 mb-4">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-white font-medium">Risk Assessment</span>
+                                    <span class="text-green-400 text-sm"><i class="fas fa-circle text-xs mr-1"></i>Live</span>
+                                </div>
+                                
+                                <!-- Sample Risk Display -->
+                                <div class="grid grid-cols-3 gap-3 mb-4">
+                                    <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-center">
+                                        <div class="text-red-400 text-2xl font-bold">3</div>
+                                        <div class="text-red-300 text-xs">High Risk</div>
+                                    </div>
+                                    <div class="bg-amber-500/20 border border-amber-500/30 rounded-lg p-3 text-center">
+                                        <div class="text-amber-400 text-2xl font-bold">8</div>
+                                        <div class="text-amber-300 text-xs">Medium</div>
+                                    </div>
+                                    <div class="bg-green-500/20 border border-green-500/30 rounded-lg p-3 text-center">
+                                        <div class="text-green-400 text-2xl font-bold">15</div>
+                                        <div class="text-green-300 text-xs">Low Risk</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sample Vital Signs -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-400">Heart Rate</span>
+                                        <span class="text-white">88 bpm</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-400">SpO2</span>
+                                        <span class="text-amber-400">94%</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-400">Blood Pressure</span>
+                                        <span class="text-white">135/85</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center text-blue-200 text-xs">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Real-time patient prioritization dashboard
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator">
+            <a href="#features" class="text-white/50 hover:text-white transition">
+                <i class="fas fa-chevron-down text-2xl"></i>
+            </a>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="stat-counter rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2" id="statPHC">30K+</div>
+                    <div class="text-gray-600">PHCs in India</div>
+                </div>
+                <div class="stat-counter rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">40%</div>
+                    <div class="text-gray-600">Faster Triage</div>
+                </div>
+                <div class="stat-counter rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">99.5%</div>
+                    <div class="text-gray-600">ML Accuracy</div>
+                </div>
+                <div class="stat-counter rounded-2xl p-6 text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">100%</div>
+                    <div class="text-gray-600">Explainable AI</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section class="py-12 bg-white border-b border-gray-100">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-8">
+                <span class="text-gray-500 font-medium text-sm">BUILT WITH MODERN TECHNOLOGIES</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-70">
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="fab fa-python text-3xl text-blue-500"></i>
+                    <span class="font-medium">Python</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="fas fa-bolt text-3xl text-green-500"></i>
+                    <span class="font-medium">FastAPI</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="fas fa-brain text-3xl text-purple-500"></i>
+                    <span class="font-medium">Scikit-learn</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="fab fa-html5 text-3xl text-orange-500"></i>
+                    <span class="font-medium">HTML5</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="fas fa-wind text-3xl text-cyan-500"></i>
+                    <span class="font-medium">Tailwind CSS</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="fas fa-chart-pie text-3xl text-pink-500"></i>
+                    <span class="font-medium">Chart.js</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section id="features" class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-blue-600 font-semibold text-sm uppercase tracking-wider">Features</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mt-3 mb-4">
+                    Why Choose HealthTriage AI?
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Built specifically for Primary Healthcare Centers with ethical AI principles at its core.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Cards -->
+                <div class="feature-card card-hover bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
+                    <div class="feature-icon w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-shield-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Decision Support Only</h3>
+                    <p class="text-gray-600">We assist healthcare workers, never replace them. All assessments require professional validation.</p>
+                </div>
+                
+                <div class="feature-card card-hover bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
+                    <div class="feature-icon w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-chart-line text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Explainable AI</h3>
+                    <p class="text-gray-600">Transparent reasoning for every risk assessment. See exactly which factors contributed.</p>
+                </div>
+                
+                <div class="feature-card card-hover bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
+                    <div class="feature-icon w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Instant Assessment</h3>
+                    <p class="text-gray-600">Get risk level and urgency score in seconds. Prioritize patients efficiently.</p>
+                </div>
+                
+                <div class="feature-card card-hover bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
+                    <div class="feature-icon w-14 h-14 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-mobile-alt text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">PHC-Optimized</h3>
+                    <p class="text-gray-600">Works on basic hardware with standard PHC equipment. No expensive infrastructure.</p>
+                </div>
+                
+                <div class="feature-card card-hover bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
+                    <div class="feature-icon w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-heartbeat text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Non-Invasive</h3>
+                    <p class="text-gray-600">Uses only standard vital signs. No blood tests or invasive procedures required.</p>
+                </div>
+                
+                <div class="feature-card card-hover bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
+                    <div class="feature-icon w-14 h-14 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-lock text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Privacy First</h3>
+                    <p class="text-gray-600">No patient data stored permanently. Designed with healthcare data privacy in mind.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-blue-600 font-semibold text-sm uppercase tracking-wider">Process</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mt-3 mb-4">How It Works</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Simple, fast, and transparent patient risk assessment in four easy steps.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="relative inline-block mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto">
+                            <i class="fas fa-user-plus text-3xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Enter Vitals</h3>
+                    <p class="text-gray-600 text-sm">Healthcare worker enters patient's vital signs</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="relative inline-block mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto">
+                            <i class="fas fa-brain text-3xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">AI Analysis</h3>
+                    <p class="text-gray-600 text-sm">Hybrid AI (rules + ML) analyzes patterns</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="relative inline-block mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto">
+                            <i class="fas fa-chart-bar text-3xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Risk Output</h3>
+                    <p class="text-gray-600 text-sm">Get risk level with explainable factors</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="relative inline-block mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto">
+                            <i class="fas fa-user-md text-3xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Doctor Validates</h3>
+                    <p class="text-gray-600 text-sm">Professional reviews and makes decision</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Important Notice Section -->
+    <section id="about" class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-10 md:p-16">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <span class="inline-block bg-amber-500/20 text-amber-400 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Important Notice
+                        </span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Decision Support,<br>Not Decision Making</h2>
+                        <p class="text-gray-300 mb-8 leading-relaxed">
+                            HealthTriage AI is a Clinical Decision Support System (CDSS) designed to 
+                            <strong>assist</strong> healthcare workers, not replace them.
+                        </p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-times text-red-400 text-xs"></i>
+                                </div>
+                                <span class="text-gray-300">Does NOT diagnose diseases</span>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-times text-red-400 text-xs"></i>
+                                </div>
+                                <span class="text-gray-300">Does NOT prescribe treatments</span>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-times text-red-400 text-xs"></i>
+                                </div>
+                                <span class="text-gray-300">Does NOT replace medical professionals</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-check text-green-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-semibold mb-1">Risk Indicators Only</h4>
+                                    <p class="text-gray-400 text-sm">Provides prioritization suggestions for queue management</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-check text-green-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-semibold mb-1">Transparent Reasoning</h4>
+                                    <p class="text-gray-400 text-sm">Shows which factors contributed to the assessment</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-check text-green-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-semibold mb-1">Human Validation Required</h4>
+                                    <p class="text-gray-400 text-sm">All results must be reviewed by licensed professionals</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-br from-blue-600 to-blue-700">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Transform Patient Triage?</h2>
+            <p class="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">Join healthcare workers using AI-assisted prioritization to provide better, faster care.</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="login.html" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition flex items-center space-x-2">
+                    <span>Get Started Free</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="patient-portal.html" class="text-white border border-white/30 px-8 py-4 rounded-xl font-medium hover:bg-white/10 transition">
+                    <i class="fas fa-user mr-2"></i>Patient Portal
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section (For Hackathon) -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <span class="text-blue-600 font-semibold text-sm uppercase tracking-wider">Hackathon Project</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mt-3 mb-4">Smart Healthcare & MedTech</h2>
+                <p class="text-gray-600">An AI-powered solution for Primary Healthcare Centers</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightbulb text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Problem</h3>
+                    <p class="text-gray-600 text-sm">Overcrowded PHCs with limited staff struggle to prioritize patients efficiently</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-code text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Solution</h3>
+                    <p class="text-gray-600 text-sm">AI-powered CDSS with hybrid rules + ML for transparent risk assessment</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 text-center border border-gray-100 shadow-sm">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-2xl text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Impact</h3>
+                    <p class="text-gray-600 text-sm">40% faster triage, reduced mortality, improved healthcare access</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-xl">
+                            <i class="fas fa-heartbeat text-xl text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">HealthTriage<span class="text-blue-400">AI</span></span>
+                    </div>
+                    <p class="text-sm">AI-powered Clinical Decision Support System for Primary Healthcare Centers.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Product</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#features" class="hover:text-white transition">Features</a></li>
+                        <li><a href="#how-it-works" class="hover:text-white transition">How It Works</a></li>
+                        <li><a href="login.html" class="hover:text-white transition">Dashboard</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition">API Reference</a></li>
+                        <li><a href="#" class="hover:text-white transition">Support</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="#about" class="hover:text-white transition">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
+                <p class="text-sm">© 2026 HealthTriage AI. All rights reserved. | Smart Healthcare & MedTech Hackathon</p>
+                <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                    <span class="text-xs bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>Decision Support Only - Not for Diagnosis
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-white', 'shadow-md');
+                nav.classList.remove('bg-white/80');
+            } else {
+                nav.classList.remove('shadow-md');
+                nav.classList.add('bg-white/80');
+            }
+        });
+
+        // Animated counter
+        function animateCounter(element, target, suffix = '') {
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target + suffix;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current) + suffix;
+                }
+            }, 30);
+        }
+
+        // Intersection observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.feature-card, .stat-counter').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | HealthTriage AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        
+        .sidebar { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
+        .card-gradient { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%); }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .nav-item { transition: all 0.2s ease; }
+        .nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.2); border-left: 3px solid #3b82f6; }
+        
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .table-row:hover { background: rgba(59, 130, 246, 0.05); }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        /* Mobile sidebar */
+        .sidebar-mobile {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-mobile.open {
+            transform: translateX(0);
+        }
+        
+        /* Responsive tables */
+        @media (max-width: 768px) {
+            .responsive-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        /* Access denied modal */
+        .access-denied-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+        }
+        .access-denied-modal.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Access Denied Modal -->
+    <div id="accessDeniedModal" class="access-denied-modal items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-shield-alt text-red-500 text-4xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Access Denied</h2>
+            <p class="text-gray-600 mb-6">You don't have permission to access the Admin Panel. This area is restricted to administrators only.</p>
+            <p class="text-sm text-gray-500 mb-6">If you believe this is an error, please contact your system administrator.</p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="dashboard.html" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Go to Dashboard
+                </a>
+                <a href="login.html" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition">
+                    <i class="fas fa-user mr-2"></i>Login as Admin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" class="flex h-screen overflow-hidden">
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow-lg">
+            <i class="fas fa-bars text-gray-700 text-xl"></i>
+        </button>
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-72 text-white flex flex-col fixed lg:relative h-full z-40 sidebar-mobile lg:transform-none">
+            <!-- Logo -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-blue-500 to-cyan-500 p-2.5 rounded-xl">
+                        <i class="fas fa-heartbeat text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg font-bold">HealthTriage<span class="text-blue-400">AI</span></span>
+                        <div class="text-xs text-gray-400">Admin Console</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 py-6 overflow-y-auto">
+                <div class="px-4 mb-4">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">Main Menu</span>
+                </div>
+                
+                <a href="#dashboard" class="nav-item active flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('dashboard')">
+                    <i class="fas fa-th-large w-5 mr-3"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="#analytics" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('analytics')">
+                    <i class="fas fa-chart-bar w-5 mr-3"></i>
+                    <span>Analytics</span>
+                </a>
+                
+                <a href="#queue" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('queue')">
+                    <i class="fas fa-users-line w-5 mr-3"></i>
+                    <span>Queue Management</span>
+                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">12</span>
+                </a>
+                
+                <a href="#staff" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('staff')">
+                    <i class="fas fa-user-nurse w-5 mr-3"></i>
+                    <span>Staff Management</span>
+                </a>
+                
+                <a href="#facilities" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('facilities')">
+                    <i class="fas fa-hospital w-5 mr-3"></i>
+                    <span>Facilities</span>
+                </a>
+                
+                <div class="px-4 mt-8 mb-4">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider">System</span>
+                </div>
+                
+                <a href="#reports" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('reports')">
+                    <i class="fas fa-file-medical-alt w-5 mr-3"></i>
+                    <span>Reports</span>
+                </a>
+                
+                <a href="#audit" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('audit')">
+                    <i class="fas fa-clipboard-list w-5 mr-3"></i>
+                    <span>Audit Logs</span>
+                </a>
+                
+                <a href="#settings" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('settings')">
+                    <i class="fas fa-cog w-5 mr-3"></i>
+                    <span>Settings</span>
+                </a>
+                
+                <a href="#alerts" class="nav-item flex items-center px-6 py-3 text-gray-300 hover:text-white" onclick="showSection('alerts')">
+                    <i class="fas fa-bell w-5 mr-3"></i>
+                    <span>Alert Config</span>
+                </a>
+            </nav>
+            
+            <!-- System Status -->
+            <div class="p-4 border-t border-white/10">
+                <div class="bg-green-500/20 rounded-xl p-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-3 h-3 bg-green-500 rounded-full pulse-dot"></div>
+                        <div>
+                            <div class="text-sm font-medium text-green-400">System Online</div>
+                            <div class="text-xs text-gray-400">All services operational</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Top Header -->
+            <header class="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800" id="sectionTitle">Dashboard</h1>
+                        <p class="text-sm text-gray-500">Welcome back, Administrator</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Search -->
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." class="bg-gray-100 border-0 rounded-lg pl-10 pr-4 py-2 w-64 focus:ring-2 focus:ring-blue-500 focus:bg-white">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                        
+                        <!-- Notifications -->
+                        <button class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">5</span>
+                        </button>
+                        
+                        <!-- Profile -->
+                        <div class="flex items-center space-x-3 pl-4 border-l border-gray-200">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                                AD
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-700">Dr. Admin</div>
+                                <div class="text-xs text-gray-500">Super Admin</div>
+                            </div>
+                            <button onclick="logout()" class="text-gray-400 hover:text-red-500 ml-2">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="p-8">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                            <span class="text-green-500 text-sm font-medium"><i class="fas fa-arrow-up mr-1"></i>12%</span>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-800 mb-1">1,284</div>
+                        <div class="text-gray-500 text-sm">Total Patients Today</div>
+                    </div>
+                    
+                    <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                            </div>
+                            <span class="text-red-500 text-sm font-medium pulse-dot"><i class="fas fa-circle mr-1 text-xs"></i>Live</span>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-800 mb-1">23</div>
+                        <div class="text-gray-500 text-sm">High Risk Cases</div>
+                    </div>
+                    
+                    <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-clock text-green-600 text-xl"></i>
+                            </div>
+                            <span class="text-green-500 text-sm font-medium"><i class="fas fa-arrow-down mr-1"></i>8%</span>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-800 mb-1">12 min</div>
+                        <div class="text-gray-500 text-sm">Avg. Wait Time</div>
+                    </div>
+                    
+                    <div class="stat-card bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-user-md text-purple-600 text-xl"></i>
+                            </div>
+                            <span class="text-blue-500 text-sm font-medium"><i class="fas fa-check mr-1"></i>Active</span>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-800 mb-1">48</div>
+                        <div class="text-gray-500 text-sm">Active Staff</div>
+                    </div>
+                </div>
+                
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Risk Distribution Chart -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Risk Distribution</h3>
+                            <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
+                                <option>Today</option>
+                                <option>This Week</option>
+                                <option>This Month</option>
+                            </select>
+                        </div>
+                        <canvas id="riskChart" height="200"></canvas>
+                    </div>
+                    
+                    <!-- Hourly Assessment Chart -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Assessments Per Hour</h3>
+                            <div class="flex space-x-2">
+                                <span class="flex items-center text-sm text-gray-500">
+                                    <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>Today
+                                </span>
+                                <span class="flex items-center text-sm text-gray-500">
+                                    <span class="w-3 h-3 bg-gray-300 rounded-full mr-2"></span>Yesterday
+                                </span>
+                            </div>
+                        </div>
+                        <canvas id="hourlyChart" height="200"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Recent Assessments & Alerts -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent High Risk -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Recent High-Risk Patients</h3>
+                            <a href="#" class="text-blue-600 text-sm hover:underline">View All</a>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-left text-sm text-gray-500 border-b border-gray-100">
+                                        <th class="pb-3 font-medium">Patient ID</th>
+                                        <th class="pb-3 font-medium">Age/Gender</th>
+                                        <th class="pb-3 font-medium">Risk Level</th>
+                                        <th class="pb-3 font-medium">Urgency</th>
+                                        <th class="pb-3 font-medium">Status</th>
+                                        <th class="pb-3 font-medium">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    <tr class="table-row border-b border-gray-50">
+                                        <td class="py-4 font-medium text-gray-800">PT-2024-1847</td>
+                                        <td class="py-4 text-gray-600">67/M</td>
+                                        <td class="py-4"><span class="status-badge bg-red-100 text-red-700">HIGH</span></td>
+                                        <td class="py-4 text-gray-800 font-medium">92%</td>
+                                        <td class="py-4"><span class="status-badge bg-amber-100 text-amber-700">Waiting</span></td>
+                                        <td class="py-4">
+                                            <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-eye mr-2"></i>View</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-row border-b border-gray-50">
+                                        <td class="py-4 font-medium text-gray-800">PT-2024-1846</td>
+                                        <td class="py-4 text-gray-600">45/F</td>
+                                        <td class="py-4"><span class="status-badge bg-red-100 text-red-700">HIGH</span></td>
+                                        <td class="py-4 text-gray-800 font-medium">88%</td>
+                                        <td class="py-4"><span class="status-badge bg-blue-100 text-blue-700">In Progress</span></td>
+                                        <td class="py-4">
+                                            <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-eye mr-2"></i>View</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-row border-b border-gray-50">
+                                        <td class="py-4 font-medium text-gray-800">PT-2024-1845</td>
+                                        <td class="py-4 text-gray-600">72/M</td>
+                                        <td class="py-4"><span class="status-badge bg-red-100 text-red-700">HIGH</span></td>
+                                        <td class="py-4 text-gray-800 font-medium">85%</td>
+                                        <td class="py-4"><span class="status-badge bg-green-100 text-green-700">Completed</span></td>
+                                        <td class="py-4">
+                                            <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-eye mr-2"></i>View</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-row">
+                                        <td class="py-4 font-medium text-gray-800">PT-2024-1844</td>
+                                        <td class="py-4 text-gray-600">58/F</td>
+                                        <td class="py-4"><span class="status-badge bg-amber-100 text-amber-700">MEDIUM</span></td>
+                                        <td class="py-4 text-gray-800 font-medium">72%</td>
+                                        <td class="py-4"><span class="status-badge bg-amber-100 text-amber-700">Waiting</span></td>
+                                        <td class="py-4">
+                                            <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-eye mr-2"></i>View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Alerts -->
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Live Alerts</h3>
+                            <span class="w-2 h-2 bg-red-500 rounded-full pulse-dot"></span>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-exclamation-circle text-red-500 mt-0.5"></i>
+                                    <div>
+                                        <div class="text-sm font-medium text-red-800">Critical Case Alert</div>
+                                        <div class="text-xs text-red-600">PT-1847: SpO2 dropped to 89%</div>
+                                        <div class="text-xs text-gray-500 mt-1">2 min ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-clock text-amber-500 mt-0.5"></i>
+                                    <div>
+                                        <div class="text-sm font-medium text-amber-800">Long Wait Alert</div>
+                                        <div class="text-xs text-amber-600">5 patients waiting >30 min</div>
+                                        <div class="text-xs text-gray-500 mt-1">5 min ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-user-plus text-blue-500 mt-0.5"></i>
+                                    <div>
+                                        <div class="text-sm font-medium text-blue-800">New Staff Login</div>
+                                        <div class="text-xs text-blue-600">Dr. Sharma started shift</div>
+                                        <div class="text-xs text-gray-500 mt-1">15 min ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
+                                    <div>
+                                        <div class="text-sm font-medium text-green-800">System Update</div>
+                                        <div class="text-xs text-green-600">ML model retrained successfully</div>
+                                        <div class="text-xs text-gray-500 mt-1">1 hour ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Analytics Section -->
+            <section id="analytics" class="p-8 hidden">
+                <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Performance Analytics</h3>
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">Daily</button>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">Weekly</button>
+                            <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">Monthly</button>
+                        </div>
+                    </div>
+                    <canvas id="performanceChart" height="100"></canvas>
+                </div>
+                
+                <!-- KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h4 class="text-gray-500 text-sm mb-2">Model Accuracy</h4>
+                        <div class="text-4xl font-bold text-gray-800 mb-2">99.5%</div>
+                        <div class="text-green-500 text-sm"><i class="fas fa-arrow-up mr-1"></i>0.2% from last week</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h4 class="text-gray-500 text-sm mb-2">Avg Response Time</h4>
+                        <div class="text-4xl font-bold text-gray-800 mb-2">45ms</div>
+                        <div class="text-green-500 text-sm"><i class="fas fa-arrow-down mr-1"></i>12ms faster</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h4 class="text-gray-500 text-sm mb-2">Assessment Accuracy</h4>
+                        <div class="text-4xl font-bold text-gray-800 mb-2">96.8%</div>
+                        <div class="text-gray-500 text-sm">Based on doctor validation</div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Queue Management Section -->
+            <section id="queue" class="p-8 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- High Priority Queue -->
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                        <div class="bg-red-500 text-white px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold">High Priority</h3>
+                                <span class="bg-white/20 px-3 py-1 rounded-full text-sm">3 patients</span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-3" id="highQueue">
+                            <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-medium text-gray-800">PT-1847</span>
+                                    <span class="text-red-600 text-sm font-medium">92%</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">67/M • Chest pain, Low SpO2</div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i>8 min wait</span>
+                                    <button class="text-blue-600 text-sm hover:underline">Assign</button>
+                                </div>
+                            </div>
+                            <div class="bg-red-50 rounded-xl p-4 border border-red-100">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-medium text-gray-800">PT-1846</span>
+                                    <span class="text-red-600 text-sm font-medium">88%</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">45/F • High BP, Dizziness</div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i>12 min wait</span>
+                                    <button class="text-blue-600 text-sm hover:underline">Assign</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Medium Priority Queue -->
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                        <div class="bg-amber-500 text-white px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold">Medium Priority</h3>
+                                <span class="bg-white/20 px-3 py-1 rounded-full text-sm">5 patients</span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-3" id="mediumQueue">
+                            <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-medium text-gray-800">PT-1844</span>
+                                    <span class="text-amber-600 text-sm font-medium">65%</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">58/F • Mild fever, Cough</div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i>18 min wait</span>
+                                    <button class="text-blue-600 text-sm hover:underline">Assign</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Low Priority Queue -->
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                        <div class="bg-green-500 text-white px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold">Low Priority</h3>
+                                <span class="bg-white/20 px-3 py-1 rounded-full text-sm">8 patients</span>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-3" id="lowQueue">
+                            <div class="bg-green-50 rounded-xl p-4 border border-green-100">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-medium text-gray-800">PT-1840</span>
+                                    <span class="text-green-600 text-sm font-medium">25%</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">32/M • Routine checkup</div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i>25 min wait</span>
+                                    <button class="text-blue-600 text-sm hover:underline">Assign</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Staff Management Section -->
+            <section id="staff" class="p-8 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800">Staff Directory</h3>
+                    <button onclick="openModal('addStaffModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-2"></i>Add Staff
+                    </button>
+                </div>
+                
+                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr class="text-left text-sm text-gray-500">
+                                <th class="px-6 py-4 font-medium">Staff Member</th>
+                                <th class="px-6 py-4 font-medium">Role</th>
+                                <th class="px-6 py-4 font-medium">Department</th>
+                                <th class="px-6 py-4 font-medium">Status</th>
+                                <th class="px-6 py-4 font-medium">Assessments Today</th>
+                                <th class="px-6 py-4 font-medium">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="table-row border-b border-gray-100">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">RS</div>
+                                        <div>
+                                            <div class="font-medium text-gray-800">Dr. Rahul Sharma</div>
+                                            <div class="text-gray-500 text-xs">rahul.sharma@phc.gov.in</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">Medical Officer</td>
+                                <td class="px-6 py-4 text-gray-600">OPD</td>
+                                <td class="px-6 py-4"><span class="status-badge bg-green-100 text-green-700">Active</span></td>
+                                <td class="px-6 py-4 text-gray-800 font-medium">47</td>
+                                <td class="px-6 py-4">
+                                    <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="table-row border-b border-gray-100">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-medium">PK</div>
+                                        <div>
+                                            <div class="font-medium text-gray-800">Priya Kumari</div>
+                                            <div class="text-gray-500 text-xs">priya.k@phc.gov.in</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">Staff Nurse</td>
+                                <td class="px-6 py-4 text-gray-600">Triage</td>
+                                <td class="px-6 py-4"><span class="status-badge bg-green-100 text-green-700">Active</span></td>
+                                <td class="px-6 py-4 text-gray-800 font-medium">82</td>
+                                <td class="px-6 py-4">
+                                    <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-medium">AV</div>
+                                        <div>
+                                            <div class="font-medium text-gray-800">Amit Verma</div>
+                                            <div class="text-gray-500 text-xs">amit.v@phc.gov.in</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">Health Worker</td>
+                                <td class="px-6 py-4 text-gray-600">Registration</td>
+                                <td class="px-6 py-4"><span class="status-badge bg-gray-100 text-gray-700">Off Duty</span></td>
+                                <td class="px-6 py-4 text-gray-800 font-medium">0</td>
+                                <td class="px-6 py-4">
+                                    <button class="text-blue-600 hover:text-blue-800 mr-3"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Facilities Section -->
+            <section id="facilities" class="p-8 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800">Connected Facilities</h3>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-2"></i>Add Facility
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-hospital text-blue-600 text-xl"></i>
+                            </div>
+                            <span class="status-badge bg-green-100 text-green-700">Online</span>
+                        </div>
+                        <h4 class="font-semibold text-gray-800 mb-1">PHC Sector-12</h4>
+                        <p class="text-gray-500 text-sm mb-4">Gurugram, Haryana</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500"><i class="fas fa-users mr-1"></i>12 Staff</span>
+                            <span class="text-gray-500"><i class="fas fa-procedures mr-1"></i>156 Today</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-hospital text-purple-600 text-xl"></i>
+                            </div>
+                            <span class="status-badge bg-green-100 text-green-700">Online</span>
+                        </div>
+                        <h4 class="font-semibold text-gray-800 mb-1">CHC Sohna</h4>
+                        <p class="text-gray-500 text-sm mb-4">Gurugram, Haryana</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500"><i class="fas fa-users mr-1"></i>24 Staff</span>
+                            <span class="text-gray-500"><i class="fas fa-procedures mr-1"></i>312 Today</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-hospital text-amber-600 text-xl"></i>
+                            </div>
+                            <span class="status-badge bg-amber-100 text-amber-700">Syncing</span>
+                        </div>
+                        <h4 class="font-semibold text-gray-800 mb-1">PHC Palam Vihar</h4>
+                        <p class="text-gray-500 text-sm mb-4">Gurugram, Haryana</p>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500"><i class="fas fa-users mr-1"></i>8 Staff</span>
+                            <span class="text-gray-500"><i class="fas fa-procedures mr-1"></i>89 Today</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Reports Section -->
+            <section id="reports" class="p-8 hidden">
+                <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Generate Reports</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 border border-gray-200 rounded-xl hover:border-blue-500 cursor-pointer transition">
+                            <i class="fas fa-chart-pie text-blue-600 text-2xl mb-3"></i>
+                            <h4 class="font-medium text-gray-800">Daily Summary</h4>
+                            <p class="text-sm text-gray-500">Assessment stats, risk distribution</p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-xl hover:border-blue-500 cursor-pointer transition">
+                            <i class="fas fa-file-medical text-green-600 text-2xl mb-3"></i>
+                            <h4 class="font-medium text-gray-800">Patient Report</h4>
+                            <p class="text-sm text-gray-500">Individual patient history</p>
+                        </div>
+                        <div class="p-4 border border-gray-200 rounded-xl hover:border-blue-500 cursor-pointer transition">
+                            <i class="fas fa-users text-purple-600 text-2xl mb-3"></i>
+                            <h4 class="font-medium text-gray-800">Staff Performance</h4>
+                            <p class="text-sm text-gray-500">Assessments per staff member</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Reports</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-file-pdf text-red-500 text-xl"></i>
+                                <div>
+                                    <div class="font-medium text-gray-800">Daily_Report_2026-01-22.pdf</div>
+                                    <div class="text-xs text-gray-500">Generated 1 day ago</div>
+                                </div>
+                            </div>
+                            <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-download"></i></button>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-file-excel text-green-500 text-xl"></i>
+                                <div>
+                                    <div class="font-medium text-gray-800">Weekly_Stats_W3_2026.xlsx</div>
+                                    <div class="text-xs text-gray-500">Generated 3 days ago</div>
+                                </div>
+                            </div>
+                            <button class="text-blue-600 hover:text-blue-800"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Audit Logs Section -->
+            <section id="audit" class="p-8 hidden">
+                <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">System Audit Logs</h3>
+                        <div class="flex space-x-2">
+                            <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5">
+                                <option>All Actions</option>
+                                <option>Assessments</option>
+                                <option>Logins</option>
+                                <option>System</option>
+                            </select>
+                            <button class="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm">Export</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr class="text-left text-gray-500">
+                                    <th class="px-6 py-3 font-medium">Timestamp</th>
+                                    <th class="px-6 py-3 font-medium">User</th>
+                                    <th class="px-6 py-3 font-medium">Action</th>
+                                    <th class="px-6 py-3 font-medium">Details</th>
+                                    <th class="px-6 py-3 font-medium">IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-row border-b border-gray-50">
+                                    <td class="px-6 py-3 text-gray-600">2026-01-23 14:32:15</td>
+                                    <td class="px-6 py-3 font-medium text-gray-800">Dr. Sharma</td>
+                                    <td class="px-6 py-3"><span class="status-badge bg-blue-100 text-blue-700">ASSESSMENT</span></td>
+                                    <td class="px-6 py-3 text-gray-600">Patient PT-1847 assessed as HIGH risk</td>
+                                    <td class="px-6 py-3 text-gray-500">192.168.1.45</td>
+                                </tr>
+                                <tr class="table-row border-b border-gray-50">
+                                    <td class="px-6 py-3 text-gray-600">2026-01-23 14:30:08</td>
+                                    <td class="px-6 py-3 font-medium text-gray-800">Priya Kumari</td>
+                                    <td class="px-6 py-3"><span class="status-badge bg-green-100 text-green-700">LOGIN</span></td>
+                                    <td class="px-6 py-3 text-gray-600">Successful login from Chrome/Windows</td>
+                                    <td class="px-6 py-3 text-gray-500">192.168.1.52</td>
+                                </tr>
+                                <tr class="table-row border-b border-gray-50">
+                                    <td class="px-6 py-3 text-gray-600">2026-01-23 14:25:33</td>
+                                    <td class="px-6 py-3 font-medium text-gray-800">System</td>
+                                    <td class="px-6 py-3"><span class="status-badge bg-purple-100 text-purple-700">SYSTEM</span></td>
+                                    <td class="px-6 py-3 text-gray-600">Model retraining completed - Accuracy: 99.5%</td>
+                                    <td class="px-6 py-3 text-gray-500">localhost</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Settings Section -->
+            <section id="settings" class="p-8 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">General Settings</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Facility Name</label>
+                                <input type="text" value="PHC Sector-12, Gurugram" class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Admin Email</label>
+                                <input type="email" value="admin@phc.gov.in" class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Time Zone</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                                    <option>Asia/Kolkata (IST)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Risk Thresholds</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">High Risk Threshold (%)</label>
+                                <input type="number" value="70" class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Medium Risk Threshold (%)</label>
+                                <input type="number" value="40" class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Critical Alert Threshold (%)</label>
+                                <input type="number" value="85" class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">Notification Settings</h3>
+                        <div class="space-y-4">
+                            <label class="flex items-center justify-between">
+                                <span class="text-gray-700">Critical patient alerts</span>
+                                <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                            </label>
+                            <label class="flex items-center justify-between">
+                                <span class="text-gray-700">Long wait time alerts</span>
+                                <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                            </label>
+                            <label class="flex items-center justify-between">
+                                <span class="text-gray-700">Daily summary email</span>
+                                <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                            </label>
+                            <label class="flex items-center justify-between">
+                                <span class="text-gray-700">System alerts</span>
+                                <input type="checkbox" class="w-5 h-5 text-blue-600 rounded">
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-6">API Configuration</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">API Endpoint</label>
+                                <input type="text" value="http://localhost:8000" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 bg-gray-50" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                                <div class="flex space-x-2">
+                                    <input type="password" value="sk-xxxxxxxxxxxxx" class="flex-1 border border-gray-300 rounded-lg px-4 py-2.5">
+                                    <button class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200"><i class="fas fa-eye"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end space-x-3">
+                    <button class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Changes</button>
+                </div>
+            </section>
+            
+            <!-- Alert Config Section -->
+            <section id="alerts" class="p-8 hidden">
+                <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-6">Alert Configuration</h3>
+                    <div class="space-y-6">
+                        <div class="p-4 border border-gray-200 rounded-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Critical SpO2 Alert</h4>
+                                        <p class="text-sm text-gray-500">Triggered when SpO2 drops below threshold</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm text-gray-600">Threshold (%)</label>
+                                    <input type="number" value="92" class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1">
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Notify</label>
+                                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1">
+                                        <option>All Staff</option>
+                                        <option>Doctors Only</option>
+                                        <option>Admin Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border border-gray-200 rounded-xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-clock text-amber-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Long Wait Time Alert</h4>
+                                        <p class="text-sm text-gray-500">Triggered when patient waits too long</p>
+                                    </div>
+                                </div>
+                                <input type="checkbox" checked class="w-5 h-5 text-blue-600 rounded">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-sm text-gray-600">Wait Time (minutes)</label>
+                                    <input type="number" value="30" class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1">
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Priority</label>
+                                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1">
+                                        <option>High Risk Only</option>
+                                        <option>High + Medium</option>
+                                        <option>All Patients</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Add Staff Modal -->
+    <div id="addStaffModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal('addStaffModal')"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">Add New Staff</h3>
+                <button onclick="closeModal('addStaffModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="Enter full name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" class="w-full border border-gray-300 rounded-lg px-4 py-2.5" placeholder="email@phc.gov.in">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                        <option>Medical Officer</option>
+                        <option>Staff Nurse</option>
+                        <option>Health Worker</option>
+                        <option>Lab Technician</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-4 py-2.5">
+                        <option>OPD</option>
+                        <option>Triage</option>
+                        <option>Emergency</option>
+                        <option>Registration</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('addStaffModal')" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Add Staff</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check admin auth
+        const adminAuth = sessionStorage.getItem('adminAuth');
+        if (!adminAuth) {
+            // For demo, allow access
+        }
+        
+        // Section navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard',
+                'analytics': 'Analytics',
+                'queue': 'Queue Management',
+                'staff': 'Staff Management',
+                'facilities': 'Facilities',
+                'reports': 'Reports',
+                'audit': 'Audit Logs',
+                'settings': 'Settings',
+                'alerts': 'Alert Configuration'
+            };
+            document.getElementById('sectionTitle').textContent = titles[sectionId] || 'Dashboard';
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+        
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Risk Distribution Chart
+            const riskCtx = document.getElementById('riskChart').getContext('2d');
+            new Chart(riskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Low Risk', 'Medium Risk', 'High Risk', 'Critical'],
+                    datasets: [{
+                        data: [45, 30, 18, 7],
+                        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444', '#7c2d12'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+            
+            // Hourly Assessment Chart
+            const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+            new Chart(hourlyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['6AM', '8AM', '10AM', '12PM', '2PM', '4PM', '6PM', '8PM'],
+                    datasets: [{
+                        label: 'Today',
+                        data: [12, 45, 78, 92, 85, 67, 45, 23],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Yesterday',
+                        data: [15, 42, 71, 88, 79, 62, 41, 20],
+                        borderColor: '#d1d5db',
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            
+            // Performance Chart (Analytics)
+            const perfCtx = document.getElementById('performanceChart');
+            if (perfCtx) {
+                new Chart(perfCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Assessments',
+                            data: [145, 178, 192, 167, 189, 123, 98],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+            
+            // Check admin access
+            checkAdminAccess();
+        });
+        
+        // Admin Access Control
+        function checkAdminAccess() {
+            const canAccessAdmin = sessionStorage.getItem('canAccessAdmin');
+            const userRole = sessionStorage.getItem('userRole');
+            const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+            
+            if (!isLoggedIn || isLoggedIn !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (canAccessAdmin !== 'true' && userRole !== 'admin') {
+                document.getElementById('accessDeniedModal').classList.add('show');
+                document.getElementById('mainContent').style.filter = 'blur(10px)';
+                document.getElementById('mainContent').style.pointerEvents = 'none';
+            } else {
+                document.getElementById('adminUsername').textContent = sessionStorage.getItem('username') || 'Administrator';
+            }
+        }
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            if (window.innerWidth < 1024 && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+        
+        // Download functions
+        function downloadReport(type) {
+            const data = generateReportData(type);
+            const blob = new Blob([data], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `healthtriage_${type}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function generateReportData(type) {
+            const headers = {
+                'assessments': 'ID,Patient,Risk Level,Urgency Score,Timestamp,Staff\n',
+                'staff': 'ID,Name,Role,Status,Patients Seen,Last Login\n',
+                'queue': 'Token,Patient,Priority,Wait Time,Status\n'
+            };
+            
+            let csv = headers[type] || 'Data\n';
+            
+            // Sample data
+            if (type === 'assessments') {
+                csv += 'ASS-1001,PT-2026-0042,HIGH,85,2026-01-23 10:30,Dr. Sharma\n';
+                csv += 'ASS-1002,PT-2026-0043,MEDIUM,62,2026-01-23 10:45,Priya Kumari\n';
+                csv += 'ASS-1003,PT-2026-0044,LOW,28,2026-01-23 11:00,Amit Patel\n';
+            }
+            
+            return csv;
+        }
+        
+        function exportAllData() {
+            alert('Exporting all data... This would generate a comprehensive Excel file in production.');
+            downloadReport('assessments');
+        }
+    </script>
+</body>
+</html>

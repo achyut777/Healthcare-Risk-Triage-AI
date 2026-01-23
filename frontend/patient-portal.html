@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Portal | HealthTriage AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .live-indicator { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .mobile-menu { transform: translateY(-100%); transition: transform 0.3s ease; }
+        .mobile-menu.open { transform: translateY(0); }
+        .symptom-chip { transition: all 0.2s ease; cursor: pointer; }
+        .symptom-chip:hover { transform: scale(1.05); }
+        .symptom-chip.selected { background: #7c3aed; color: white; border-color: #7c3aed; }
+        .floating { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .glow { animation: glow 2s ease-in-out infinite; }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px rgba(124,58,237,0.5); } 50% { box-shadow: 0 0 20px rgba(124,58,237,0.8); } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 p-2 rounded-xl glow">
+                        <i class="fas fa-heartbeat text-xl text-white"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg sm:text-xl font-bold text-gray-800">HealthTriage<span class="text-purple-600">AI</span></span>
+                        <div class="text-xs text-gray-500">Patient Portal</div>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center space-x-4 lg:space-x-6">
+                    <a href="#queue" class="text-gray-600 hover:text-purple-600 transition text-sm">Queue</a>
+                    <a href="#symptoms" class="text-gray-600 hover:text-purple-600 transition text-sm">Symptoms</a>
+                    <a href="#health-tips" class="text-gray-600 hover:text-purple-600 transition text-sm">Health Tips</a>
+                    <a href="#appointments" class="text-gray-600 hover:text-purple-600 transition text-sm">Appointments</a>
+                    <a href="#history" class="text-gray-600 hover:text-purple-600 transition text-sm">History</a>
+                </nav>
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1 live-indicator"></span>Live
+                    </div>
+                    <select id="langSelect" class="text-xs border border-gray-200 rounded-lg px-2 py-1 hidden sm:block">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="mr">मराठी</option>
+                        <option value="ta">தமிழ்</option>
+                    </select>
+                    <a href="index.html" class="text-gray-600 hover:text-purple-600"><i class="fas fa-home"></i></a>
+                    <button id="mobileMenuBtn" class="md:hidden text-gray-600"><i class="fas fa-bars text-xl"></i></button>
+                </div>
+            </div>
+            <nav id="mobileMenu" class="mobile-menu md:hidden bg-white border-t border-gray-100 mt-3 pt-3 pb-2">
+                <a href="#queue" class="block py-2 text-gray-600 text-sm">Queue Status</a>
+                <a href="#symptoms" class="block py-2 text-gray-600 text-sm">Symptom Checker</a>
+                <a href="#health-tips" class="block py-2 text-gray-600 text-sm">Health Tips</a>
+                <a href="#appointments" class="block py-2 text-gray-600 text-sm">Appointments</a>
+                <a href="#history" class="block py-2 text-gray-600 text-sm">Visit History</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero: Queue Check -->
+    <section class="gradient-bg text-white py-8 sm:py-10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="inline-flex items-center bg-white/20 rounded-full px-4 py-1 text-sm mb-4">
+                    <span class="w-2 h-2 bg-green-400 rounded-full mr-2 pulse-dot"></span>
+                    <span id="totalWaitingHero">12</span> patients waiting
+                </div>
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Check Your Queue Status</h1>
+                <p class="text-purple-100 text-sm sm:text-base mb-6">Enter your Patient ID or Token Number for real-time updates</p>
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-2xl">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-1">
+                            <input type="text" id="patientIdInput" placeholder="e.g., PT-2026-0042 or Token #42" 
+                                class="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                        <button onclick="checkQueueStatus()" class="bg-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-purple-700 transition flex items-center justify-center">
+                            <i class="fas fa-search mr-2"></i>Check Status
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2 mt-4 text-xs text-gray-500">
+                        <span class="bg-gray-100 px-3 py-1 rounded-full cursor-pointer hover:bg-purple-100" onclick="document.getElementById('patientIdInput').value='PT-2026-0042'">Try: PT-2026-0042</span>
+                        <span class="bg-gray-100 px-3 py-1 rounded-full cursor-pointer hover:bg-purple-100" onclick="document.getElementById('patientIdInput').value='42'">Try: Token 42</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Queue Result -->
+    <section id="queueResult" class="hidden py-6 bg-white border-b border-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3 sm:mb-0">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                            <span id="avatarInitials">PT</span>
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-800 text-lg" id="resultPatientId">PT-2026-0042</div>
+                            <div class="text-sm text-purple-600 font-medium">Active in Queue</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="refreshStatus()" class="bg-white border border-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition">
+                            <i class="fas fa-sync-alt mr-1"></i>Refresh
+                        </button>
+                        <button onclick="enableNotifications()" class="bg-purple-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-purple-700 transition">
+                            <i class="fas fa-bell mr-1"></i>Notify Me
+                        </button>
+                        <button onclick="downloadQueueSlip()" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700 transition">
+                            <i class="fas fa-download mr-1"></i>Download
+                        </button>
+                        <button onclick="shareStatus()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-700 transition">
+                            <i class="fas fa-share-alt mr-1"></i>Share
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 sm:p-5 text-white text-center shadow-lg">
+                        <div class="text-4xl sm:text-5xl font-bold mb-1" id="positionInQueue">3</div>
+                        <div class="text-blue-100 text-sm">Position in Queue</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl p-4 sm:p-5 text-white text-center shadow-lg">
+                        <div class="text-4xl sm:text-5xl font-bold mb-1" id="estimatedWait">~15</div>
+                        <div class="text-amber-100 text-sm">Minutes Wait</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-4 sm:p-5 text-white text-center shadow-lg">
+                        <div class="text-4xl sm:text-5xl font-bold mb-1" id="nowServing">39</div>
+                        <div class="text-green-100 text-sm">Now Serving</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl p-4 sm:p-5 text-white text-center shadow-lg">
+                        <div class="text-4xl sm:text-5xl font-bold mb-1" id="yourToken">42</div>
+                        <div class="text-purple-100 text-sm">Your Token</div>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center justify-center text-sm text-gray-500 bg-gray-50 rounded-lg py-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 live-indicator"></span>
+                    Auto-updating every 10s • Last update: <span id="lastUpdate" class="ml-1 font-medium">Just now</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Queue Status -->
+    <section id="queue" class="py-8 sm:py-10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Live Queue Status</h2>
+                        <p class="text-gray-500 text-sm">Real-time updates from your healthcare facility</p>
+                    </div>
+                    <div class="flex items-center mt-3 sm:mt-0 text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-dot"></span>
+                        Live • <span id="totalWaiting" class="ml-1">12</span> waiting
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div class="card-hover bg-green-50 border-2 border-green-200 rounded-2xl p-5 text-center">
+                        <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-user-check text-white text-xl"></i>
+                        </div>
+                        <div class="text-green-600 text-sm font-medium mb-1">NOW SERVING</div>
+                        <div class="text-3xl sm:text-4xl font-bold text-green-700" id="liveNowServing">Token #39</div>
+                    </div>
+                    <div class="card-hover bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 text-center">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-forward text-white text-xl"></i>
+                        </div>
+                        <div class="text-blue-600 text-sm font-medium mb-1">NEXT UP</div>
+                        <div class="text-3xl sm:text-4xl font-bold text-blue-700" id="liveNextUp">Token #40</div>
+                    </div>
+                    <div class="card-hover bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 text-center">
+                        <div class="w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-users text-white text-xl"></i>
+                        </div>
+                        <div class="text-amber-600 text-sm font-medium mb-1">TOTAL WAITING</div>
+                        <div class="text-3xl sm:text-4xl font-bold text-amber-700" id="liveTotalWaiting">12</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                        <h3 class="font-semibold text-gray-800">Queue Preview</h3>
+                        <span class="text-xs text-gray-500">Showing next 5</span>
+                    </div>
+                    <div id="queueList" class="divide-y divide-gray-100"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Symptom Checker -->
+    <section id="symptoms" class="py-8 sm:py-10 bg-gradient-to-br from-purple-50 to-indigo-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-600 rounded-2xl mb-4 floating">
+                        <i class="fas fa-stethoscope text-white text-2xl"></i>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Quick Symptom Checker</h2>
+                    <p class="text-gray-600 text-sm">Select your symptoms to get an initial assessment (Not a diagnosis)</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">How are you feeling?</label>
+                        <div class="flex flex-wrap gap-2" id="symptomChips">
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="fever">🤒 Fever</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="cough">🤧 Cough</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="headache">🤕 Headache</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="fatigue">😴 Fatigue</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="chest-pain">💔 Chest Pain</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="breathing">😮‍💨 Breathing Difficulty</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="nausea">🤢 Nausea</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="dizziness">😵 Dizziness</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="body-pain">🦴 Body Pain</span>
+                            <span class="symptom-chip border-2 border-gray-200 px-4 py-2 rounded-full text-sm" data-symptom="cold">🥶 Cold/Chills</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                            <select id="symptomDuration" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500">
+                                <option value="">Select duration</option>
+                                <option value="today">Started today</option>
+                                <option value="1-2">1-2 days</option>
+                                <option value="3-5">3-5 days</option>
+                                <option value="week">More than a week</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Severity</label>
+                            <select id="symptomSeverity" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500">
+                                <option value="">Select severity</option>
+                                <option value="mild">Mild - Manageable</option>
+                                <option value="moderate">Moderate - Affecting daily activities</option>
+                                <option value="severe">Severe - Need immediate help</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="checkSymptoms()" class="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition">
+                        <i class="fas fa-search-plus mr-2"></i>Get Assessment
+                    </button>
+                    <div id="symptomResult" class="hidden mt-6 p-4 rounded-xl"></div>
+                    <p class="text-xs text-gray-500 text-center mt-4">
+                        <i class="fas fa-info-circle mr-1"></i>This is not a medical diagnosis. Please consult a healthcare professional.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Health Tips -->
+    <section id="health-tips" class="py-8 sm:py-10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-5xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Daily Health Tips</h2>
+                    <p class="text-gray-600 text-sm">Simple tips for a healthier you</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="card-hover bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-5 border border-blue-100">
+                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fas fa-tint text-white text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Stay Hydrated</h3>
+                        <p class="text-gray-600 text-sm">Drink 8-10 glasses of water daily for optimal health.</p>
+                    </div>
+                    <div class="card-hover bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-100">
+                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fas fa-walking text-white text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Move Daily</h3>
+                        <p class="text-gray-600 text-sm">30 minutes of walking can reduce heart disease risk by 35%.</p>
+                    </div>
+                    <div class="card-hover bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-5 border border-purple-100">
+                        <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fas fa-moon text-white text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Sleep Well</h3>
+                        <p class="text-gray-600 text-sm">7-9 hours of sleep boosts immunity and mental health.</p>
+                    </div>
+                    <div class="card-hover bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100">
+                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center mb-4">
+                            <i class="fas fa-apple-alt text-white text-xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Eat Balanced</h3>
+                        <p class="text-gray-600 text-sm">Include fruits, vegetables, and whole grains in meals.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Appointments -->
+    <section id="appointments" class="py-8 sm:py-10 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Book Appointment</h2>
+                        <p class="text-gray-500 text-sm">Schedule your next visit</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select Service</label>
+                            <select class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500">
+                                <option>General Checkup</option>
+                                <option>Vaccination</option>
+                                <option>Maternal Care</option>
+                                <option>Child Health</option>
+                                <option>Chronic Disease Management</option>
+                                <option>Lab Tests</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Date</label>
+                            <input type="date" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500" min="2026-01-24">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time</label>
+                            <select class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500">
+                                <option>Morning (9 AM - 12 PM)</option>
+                                <option>Afternoon (12 PM - 4 PM)</option>
+                                <option>Evening (4 PM - 7 PM)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+                            <input type="tel" placeholder="+91 98765 43210" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+                    <button onclick="bookAppointment()" class="mt-6 w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition">
+                        <i class="fas fa-calendar-check mr-2"></i>Book Appointment
+                    </button>
+                </div>
+                <!-- Upcoming Appointments -->
+                <div class="mt-6">
+                    <h3 class="font-semibold text-gray-800 mb-4">Your Upcoming Appointments</h3>
+                    <div class="bg-white rounded-xl p-4 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-calendar text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">General Checkup</div>
+                                <div class="text-sm text-gray-500">Jan 25, 2026 • 10:00 AM</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 sm:mt-0 flex gap-2">
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Confirmed</span>
+                            <button class="text-red-500 hover:text-red-700 text-sm"><i class="fas fa-times"></i> Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visit History -->
+    <section id="history" class="py-8 sm:py-10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Visit History</h2>
+                    <button onclick="downloadHistory()" class="mt-3 sm:mt-0 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-50 transition">
+                        <i class="fas fa-download mr-2"></i>Download All
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div class="card-hover bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">General Checkup</div>
+                                    <div class="text-sm text-gray-500">January 15, 2026 • 10:30 AM</div>
+                                    <div class="text-xs text-gray-400 mt-1">Token #28 • Wait time: 12 min • Dr. Sharma</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 sm:mt-0 flex items-center gap-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Completed</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-file-medical mr-1"></i>View</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-hover bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-syringe text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-800">Vaccination - Flu Shot</div>
+                                    <div class="text-sm text-gray-500">January 5, 2026 • 2:00 PM</div>
+                                    <div class="text-xs text-gray-400 mt-1">Token #15 • Wait time: 8 min • Nurse Priya</div>
+                                </div>
+                            </div>
+                            <div class="mt-3 sm:mt-0 flex items-center gap-2">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">Completed</span>
+                                <button class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-file-medical mr-1"></i>View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vital Signs Info -->
+    <section id="info" class="py-8 sm:py-10 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Understand Your Vitals</h2>
+                <p class="text-gray-600 text-sm">Know what healthy ranges look like</p>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+                <div class="card-hover bg-white rounded-2xl p-4 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-heartbeat text-red-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">Heart Rate</h3>
+                    <p class="text-green-600 text-xs font-medium">60-100 bpm</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-4 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-tint text-blue-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">Blood Pressure</h3>
+                    <p class="text-green-600 text-xs font-medium">120/80 mmHg</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-4 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-lungs text-cyan-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">SpO2</h3>
+                    <p class="text-green-600 text-xs font-medium">95-100%</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-4 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-thermometer-half text-amber-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">Temperature</h3>
+                    <p class="text-green-600 text-xs font-medium">36.1-37.2°C</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-4 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-weight text-purple-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">BMI</h3>
+                    <p class="text-green-600 text-xs font-medium">18.5-24.9</p>
+                </div>
+                <div class="card-hover bg-white rounded-2xl p-4 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-candy-cane text-pink-600"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">Blood Sugar</h3>
+                    <p class="text-green-600 text-xs font-medium">70-100 mg/dL</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Medicine Reminder -->
+    <section class="py-8 sm:py-10">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-6 sm:p-8 text-white">
+                    <div class="flex flex-col md:flex-row items-center justify-between">
+                        <div class="mb-4 md:mb-0 text-center md:text-left">
+                            <div class="flex items-center justify-center md:justify-start space-x-3 mb-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-pills text-2xl"></i>
+                                </div>
+                                <h3 class="text-xl font-bold">Medicine Reminders</h3>
+                            </div>
+                            <p class="text-purple-100 text-sm">Never miss a dose! Set up SMS reminders for your medications.</p>
+                        </div>
+                        <button onclick="setupReminder()" class="bg-white text-purple-600 px-6 py-3 rounded-xl font-medium hover:bg-purple-50 transition">
+                            <i class="fas fa-bell mr-2"></i>Set Reminder
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Section -->
+    <section class="py-8 sm:py-10 bg-red-50">
+        <div class="container mx-auto px-4 text-center">
+            <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4 floating">
+                <i class="fas fa-ambulance text-white text-2xl"></i>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-red-800 mb-2">Medical Emergency?</h2>
+            <p class="text-red-600 text-sm mb-6">Don't wait - call emergency services immediately</p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="tel:102" class="w-full sm:w-auto bg-red-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-red-700 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-phone-alt mr-3"></i>Call 102 (Ambulance)
+                </a>
+                <a href="tel:108" class="w-full sm:w-auto border-2 border-red-600 text-red-600 px-8 py-4 rounded-xl font-bold hover:bg-red-100 transition flex items-center justify-center">
+                    <i class="fas fa-phone mr-3"></i>Call 108
+                </a>
+            </div>
+            <div class="mt-4 flex flex-wrap justify-center gap-4 text-sm text-red-700">
+                <span><i class="fas fa-phone mr-1"></i>Police: 100</span>
+                <span><i class="fas fa-phone mr-1"></i>Fire: 101</span>
+                <span><i class="fas fa-phone mr-1"></i>Women Helpline: 1091</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section class="py-8 sm:py-10 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto text-center">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Share Your Feedback</h2>
+                <p class="text-gray-600 text-sm mb-6">Help us improve our services</p>
+                <div class="bg-gray-50 rounded-2xl p-6">
+                    <div class="flex justify-center space-x-2 mb-4">
+                        <button onclick="setRating(1)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button onclick="setRating(2)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button onclick="setRating(3)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button onclick="setRating(4)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                        <button onclick="setRating(5)" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition">★</button>
+                    </div>
+                    <textarea id="feedbackText" placeholder="Tell us about your experience..." rows="3" class="w-full border border-gray-300 rounded-xl px-4 py-3 mb-4 focus:ring-2 focus:ring-purple-500"></textarea>
+                    <button onclick="submitFeedback()" class="bg-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-purple-700 transition">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#queue" class="hover:text-white transition">Queue Status</a></li>
+                        <li><a href="#appointments" class="hover:text-white transition">Book Appointment</a></li>
+                        <li><a href="#history" class="hover:text-white transition">Visit History</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Health Resources</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#symptoms" class="hover:text-white transition">Symptom Checker</a></li>
+                        <li><a href="#health-tips" class="hover:text-white transition">Health Tips</a></li>
+                        <li><a href="#info" class="hover:text-white transition">Vital Signs Guide</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Emergency</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><span class="text-red-400">Ambulance: 102</span></li>
+                        <li><span class="text-red-400">Emergency: 108</span></li>
+                        <li><span class="text-red-400">Helpline: 104</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-3">About</h4>
+                    <p class="text-sm">HealthTriage AI - AI-powered patient prioritization for better healthcare access.</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 text-center text-sm">
+                <p>© 2026 HealthTriage AI | <span class="text-purple-400">Smart Healthcare & MedTech Hackathon</span></p>
+                <p class="mt-2 text-xs text-gray-500">Decision Support System Only - Not a substitute for professional medical advice</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <i class="fas fa-check-circle text-green-400" id="toastIcon"></i>
+            <span id="toastMessage">Notification</span>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let currentPatientId = null;
+        let selectedSymptoms = [];
+        let userRating = 0;
+        let queueData = { nowServing: 39, totalWaiting: 12, queue: [
+            { token: 40, name: 'Patient A', priority: 'high', waitTime: '5 min', age: '67/M' },
+            { token: 41, name: 'Patient B', priority: 'medium', waitTime: '10 min', age: '45/F' },
+            { token: 42, name: 'Patient C', priority: 'medium', waitTime: '15 min', age: '32/M' },
+            { token: 43, name: 'Patient D', priority: 'low', waitTime: '20 min', age: '28/F' },
+            { token: 44, name: 'Patient E', priority: 'low', waitTime: '25 min', age: '55/M' }
+        ]};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderQueueList();
+            startLiveUpdates();
+            setupSymptomChips();
+        });
+
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        });
+
+        function setupSymptomChips() {
+            document.querySelectorAll('.symptom-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chip.classList.toggle('selected');
+                    const symptom = chip.dataset.symptom;
+                    if (selectedSymptoms.includes(symptom)) {
+                        selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+                    } else {
+                        selectedSymptoms.push(symptom);
+                    }
+                });
+            });
+        }
+
+        async function checkQueueStatus() {
+            const patientId = document.getElementById('patientIdInput').value.trim();
+            if (!patientId) { showToast('Please enter a Patient ID', 'warning'); return; }
+            currentPatientId = patientId.toUpperCase();
+            
+            try {
+                const response = await fetch(`${API_BASE}/queue/check/${patientId}`);
+                const data = await response.json();
+                if (data.found) showResult(data.token || patientId, data.position || 3, data.estimated_wait || 15);
+                else showDemoResult(patientId);
+            } catch (e) { showDemoResult(patientId); }
+            
+            document.getElementById('queueResult').classList.remove('hidden');
+            document.getElementById('queueResult').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showResult(token, position, waitTime) {
+            document.getElementById('resultPatientId').textContent = token;
+            document.getElementById('positionInQueue').textContent = position;
+            document.getElementById('estimatedWait').textContent = '~' + waitTime;
+            document.getElementById('yourToken').textContent = token.toString().split('-').pop() || '42';
+        }
+
+        function showDemoResult(patientId) {
+            document.getElementById('resultPatientId').textContent = patientId.toUpperCase();
+            const tokenNum = parseInt(patientId.match(/(\d+)$/)?.[1]) || 42;
+            const position = Math.max(1, tokenNum - queueData.nowServing);
+            document.getElementById('positionInQueue').textContent = position;
+            document.getElementById('estimatedWait').textContent = '~' + (position * 5);
+            document.getElementById('yourToken').textContent = tokenNum;
+            document.getElementById('nowServing').textContent = queueData.nowServing;
+            document.getElementById('avatarInitials').textContent = patientId.substring(0, 2).toUpperCase();
+        }
+
+        function refreshStatus() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>...';
+            btn.disabled = true;
+            setTimeout(() => {
+                queueData.nowServing++;
+                if (queueData.totalWaiting > 0) queueData.totalWaiting--;
+                updateQueueDisplay();
+                btn.innerHTML = '<i class="fas fa-sync-alt mr-1"></i>Refresh';
+                btn.disabled = false;
+                showToast('Queue updated!', 'success');
+            }, 1000);
+        }
+
+        function startLiveUpdates() {
+            setInterval(() => {
+                if (Math.random() > 0.7) { 
+                    queueData.nowServing++; 
+                    if (queueData.totalWaiting > 0) queueData.totalWaiting--; 
+                }
+                updateQueueDisplay();
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            }, 10000);
+        }
+
+        function updateQueueDisplay() {
+            document.getElementById('liveNowServing').textContent = 'Token #' + queueData.nowServing;
+            document.getElementById('liveNextUp').textContent = 'Token #' + (queueData.nowServing + 1);
+            document.getElementById('liveTotalWaiting').textContent = queueData.totalWaiting;
+            document.getElementById('totalWaiting').textContent = queueData.totalWaiting;
+            document.getElementById('totalWaitingHero').textContent = queueData.totalWaiting;
+            document.getElementById('nowServing').textContent = queueData.nowServing;
+            
+            if (currentPatientId) {
+                const tokenNum = parseInt(currentPatientId.match(/(\d+)$/)?.[1]) || 42;
+                const newPosition = Math.max(0, tokenNum - queueData.nowServing);
+                document.getElementById('positionInQueue').textContent = newPosition;
+                document.getElementById('estimatedWait').textContent = '~' + (newPosition * 5);
+                if (newPosition <= 2 && newPosition > 0) showToast('Your turn is coming soon!', 'warning');
+                else if (newPosition === 0) { 
+                    showToast("It's your turn! Please proceed to the counter.", 'success');
+                    if (Notification.permission === 'granted') new Notification('HealthTriage AI', { body: "It's your turn!" });
+                }
+            }
+            renderQueueList();
+        }
+
+        function renderQueueList() {
+            document.getElementById('queueList').innerHTML = queueData.queue.map(item => `
+                <div class="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-gray-50 transition">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm
+                            ${item.priority === 'high' ? 'bg-red-100 text-red-600' : item.priority === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'}">#${item.token}</div>
+                        <div>
+                            <div class="font-medium text-gray-800">${item.name}</div>
+                            <div class="text-sm text-gray-500">${item.age} • Est: ${item.waitTime}</div>
+                        </div>
+                    </div>
+                    <span class="mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-medium w-fit
+                        ${item.priority === 'high' ? 'bg-red-100 text-red-700' : item.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}">${item.priority.toUpperCase()}</span>
+                </div>`).join('');
+        }
+
+        function checkSymptoms() {
+            if (selectedSymptoms.length === 0) {
+                showToast('Please select at least one symptom', 'warning');
+                return;
+            }
+            const severity = document.getElementById('symptomSeverity').value;
+            let urgency = 'low';
+            let message = '';
+            let bgColor = 'bg-green-50 border-green-200';
+            
+            if (selectedSymptoms.includes('chest-pain') || selectedSymptoms.includes('breathing')) {
+                urgency = 'high';
+                message = '⚠️ <strong>Urgent:</strong> Your symptoms may require immediate medical attention. Please visit the emergency department or call 102.';
+                bgColor = 'bg-red-50 border-red-200 text-red-800';
+            } else if (severity === 'severe' || selectedSymptoms.length >= 4) {
+                urgency = 'medium';
+                message = '🟡 <strong>Moderate Priority:</strong> We recommend you visit the healthcare facility soon. Consider booking an appointment today.';
+                bgColor = 'bg-amber-50 border-amber-200 text-amber-800';
+            } else {
+                message = '✅ <strong>Low Priority:</strong> Your symptoms appear manageable. Rest, stay hydrated, and monitor your condition. Visit if symptoms worsen.';
+                bgColor = 'bg-green-50 border-green-200 text-green-800';
+            }
+            
+            const resultDiv = document.getElementById('symptomResult');
+            resultDiv.className = `mt-6 p-4 rounded-xl border-2 ${bgColor}`;
+            resultDiv.innerHTML = `<p class="text-sm">${message}</p><p class="text-xs mt-2 opacity-75">Selected: ${selectedSymptoms.join(', ')}</p>`;
+            resultDiv.classList.remove('hidden');
+        }
+
+        function enableNotifications() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(p => {
+                    if (p === 'granted') { 
+                        showToast('Notifications enabled!', 'success'); 
+                        new Notification('HealthTriage AI', { body: 'You will be notified when your turn is near.' }); 
+                    }
+                });
+            }
+        }
+
+        function downloadQueueSlip() {
+            const content = `HEALTHTRIAGE AI - QUEUE SLIP\n============================\nPatient ID: ${document.getElementById('resultPatientId').textContent}\nToken: #${document.getElementById('yourToken').textContent}\nPosition: ${document.getElementById('positionInQueue').textContent}\nEst. Wait: ${document.getElementById('estimatedWait').textContent} min\nNow Serving: Token #${queueData.nowServing}\nDate: ${new Date().toLocaleString()}\n============================\nVisit patient-portal for live updates`;
+            downloadFile(content, `queue_slip_${Date.now()}.txt`);
+            showToast('Queue slip downloaded!', 'success');
+        }
+
+        function downloadHistory() {
+            const content = `HEALTHTRIAGE AI - VISIT HISTORY\n================================\nGenerated: ${new Date().toLocaleString()}\n\nVISIT 1:\n  Date: January 15, 2026\n  Type: General Checkup\n  Token: #28\n  Doctor: Dr. Sharma\n  Status: Completed\n\nVISIT 2:\n  Date: January 5, 2026\n  Type: Vaccination - Flu Shot\n  Token: #15\n  Nurse: Priya Kumari\n  Status: Completed\n================================`;
+            downloadFile(content, `history_${Date.now()}.txt`);
+            showToast('History downloaded!', 'success');
+        }
+
+        function downloadFile(content, filename) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([content], { type: 'text/plain' }));
+            a.download = filename;
+            a.click();
+        }
+
+        function shareStatus() {
+            const text = `My queue status at HealthTriage AI:\n🎫 Token: #${document.getElementById('yourToken').textContent}\n📍 Position: ${document.getElementById('positionInQueue').textContent}\n⏱️ Est. Wait: ${document.getElementById('estimatedWait').textContent} min`;
+            if (navigator.share) {
+                navigator.share({ title: 'My Queue Status', text: text });
+            } else {
+                navigator.clipboard.writeText(text);
+                showToast('Status copied to clipboard!', 'success');
+            }
+        }
+
+        function bookAppointment() {
+            showToast('Appointment request submitted! You will receive SMS confirmation.', 'success');
+        }
+
+        function setupReminder() {
+            showToast('Medicine reminder setup! You will receive SMS reminders.', 'success');
+        }
+
+        function setRating(rating) {
+            userRating = rating;
+            document.querySelectorAll('.rating-star').forEach((star, index) => {
+                star.classList.toggle('text-yellow-400', index < rating);
+                star.classList.toggle('text-gray-300', index >= rating);
+            });
+        }
+
+        function submitFeedback() {
+            if (userRating === 0) {
+                showToast('Please select a rating', 'warning');
+                return;
+            }
+            showToast('Thank you for your feedback!', 'success');
+            document.getElementById('feedbackText').value = '';
+            setRating(0);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            document.getElementById('toastIcon').className = 'fas ' + 
+                (type === 'success' ? 'fa-check-circle text-green-400' : 
+                 type === 'warning' ? 'fa-exclamation-triangle text-yellow-400' : 
+                 'fa-times-circle text-red-400');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+    </script>
+</body>
+</html>
