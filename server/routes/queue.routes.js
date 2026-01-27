@@ -137,6 +137,7 @@ router.get('/status', protect, async (req, res) => {
       const allQueue = demoStore.queue.find({ facilityId });
       const waiting = allQueue.filter(q => q.status === 'waiting').sort((a, b) => b.urgencyScore - a.urgencyScore);
       const serving = allQueue.filter(q => q.status === 'in-consultation');
+      const completed = allQueue.filter(q => q.status === 'completed');
 
       const priorityCounts = {
         critical: waiting.filter(p => p.priority === 'critical').length,
@@ -153,8 +154,10 @@ router.get('/status', protect, async (req, res) => {
           nextUp: waiting[0]?.token || null,
           priorityBreakdown: priorityCounts,
           averageWaitTime: waiting.length * 8,
-          servedToday: allQueue.filter(q => q.status === 'completed').length,
-          queue: waiting.slice(0, 20)
+          servedToday: completed.length,
+          queue: waiting.slice(0, 20),
+          serving: serving,
+          completed: completed
         }
       });
     }
@@ -164,11 +167,11 @@ router.get('/status', protect, async (req, res) => {
     
     const serving = await QueueEntry.find({ facilityId, status: 'serving' });
     
-    const completedToday = await QueueEntry.countDocuments({
+    const completedEntries = await QueueEntry.find({
       facilityId,
       status: 'completed',
       completedAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-    });
+    }).sort({ completedAt: -1 });
 
     const priorityCounts = {
       critical: waiting.filter(p => p.priority === 'critical').length,
@@ -185,8 +188,10 @@ router.get('/status', protect, async (req, res) => {
         nextUp: waiting[0]?.token || null,
         priorityBreakdown: priorityCounts,
         averageWaitTime: waiting.length * 8,
-        servedToday: completedToday,
-        queue: waiting.slice(0, 20) // Return first 20
+        servedToday: completedEntries.length,
+        queue: waiting.slice(0, 20),
+        serving: serving,
+        completed: completedEntries
       }
     });
   } catch (error) {

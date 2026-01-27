@@ -20,10 +20,11 @@ const isMongoConnected = () => mongoose.connection.readyState === 1;
 router.get('/', protect, async (req, res) => {
   try {
     const { page = 1, limit = 20, search } = req.query;
+    const facilityId = req.user.facilityId;
 
     if (!isMongoConnected()) {
-      // Demo mode
-      let patients = demoStore.patients.find({});
+      // Demo mode - filter by facilityId
+      let patients = demoStore.patients.find({ facilityId });
       
       if (search) {
         const searchLower = search.toLowerCase();

@@ -2,8 +2,17 @@
  * Demo Data Service
  * In-memory data store for demo mode (when MongoDB is not available)
  * Auto-generates patients and manages complete healthcare workflow
+ * DATA PERSISTS TO FILE - won't be lost on server restart
  */
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get directory path for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DATA_FILE = path.join(__dirname, '../data/persistent-data.json');
 
 // Demo Users (pre-hashed passwords)
 const demoUsers = [
@@ -938,6 +947,125 @@ const demoQueue = [
     facilityId: 'PHC-001',
     addedAt: new Date(Date.now() - 40 * 60 * 1000),
     createdAt: new Date(Date.now() - 40 * 60 * 1000)
+  },
+  // Completed Queue Entries - For Billing
+  {
+    _id: 'queue-021',
+    token: 'Q-2026-0021',
+    patient: 'patient-001',
+    patientId: 'PT-2026-00001',
+    patientName: 'Rajesh Kumar',
+    age: 45,
+    gender: 'male',
+    symptoms: 'Regular diabetes checkup',
+    priority: 'medium',
+    urgencyScore: 45,
+    status: 'completed',
+    vitalsRecorded: true,
+    assessment: 'assessment-001',
+    assignedDoctor: 'demo-user-002',
+    assignedDoctorName: 'Dr. Sarah Johnson',
+    diagnosis: 'Type 2 Diabetes - Well controlled',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
+    calledAt: new Date(Date.now() - 2.5 * 60 * 60 * 1000),
+    completedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    waitTime: 30,
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'queue-022',
+    token: 'Q-2026-0022',
+    patient: 'patient-003',
+    patientId: 'PT-2026-00003',
+    patientName: 'Amit Singh',
+    age: 28,
+    gender: 'male',
+    symptoms: 'Fever and body ache',
+    priority: 'medium',
+    urgencyScore: 50,
+    status: 'completed',
+    vitalsRecorded: true,
+    assessment: 'assessment-003',
+    assignedDoctor: 'demo-user-005',
+    assignedDoctorName: 'Dr. Rajiv Mehta',
+    diagnosis: 'Viral fever',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 2.5 * 60 * 60 * 1000),
+    calledAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    completedAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
+    waitTime: 30,
+    createdAt: new Date(Date.now() - 2.5 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'queue-023',
+    token: 'Q-2026-0023',
+    patient: 'patient-004',
+    patientId: 'PT-2026-00004',
+    patientName: 'Priya Gupta',
+    age: 35,
+    gender: 'female',
+    symptoms: 'Severe migraine',
+    priority: 'high',
+    urgencyScore: 65,
+    status: 'completed',
+    vitalsRecorded: true,
+    assessment: 'assessment-004',
+    assignedDoctor: 'demo-user-002',
+    assignedDoctorName: 'Dr. Sarah Johnson',
+    diagnosis: 'Chronic migraine',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    calledAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
+    completedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+    waitTime: 30,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'queue-024',
+    token: 'Q-2026-0024',
+    patient: 'patient-006',
+    patientId: 'PT-2026-00006',
+    patientName: 'Anita Sharma',
+    age: 42,
+    gender: 'female',
+    symptoms: 'Thyroid follow-up',
+    priority: 'low',
+    urgencyScore: 30,
+    status: 'completed',
+    vitalsRecorded: true,
+    assignedDoctor: 'demo-user-005',
+    assignedDoctorName: 'Dr. Rajiv Mehta',
+    diagnosis: 'Hypothyroidism - stable',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
+    calledAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+    completedAt: new Date(Date.now() - 45 * 60 * 1000),
+    waitTime: 30,
+    createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'queue-025',
+    token: 'Q-2026-0025',
+    patient: 'patient-008',
+    patientId: 'PT-2026-00008',
+    patientName: 'Meera Reddy',
+    age: 31,
+    gender: 'female',
+    symptoms: 'General health checkup',
+    priority: 'low',
+    urgencyScore: 20,
+    status: 'completed',
+    vitalsRecorded: true,
+    assignedDoctor: 'demo-user-002',
+    assignedDoctorName: 'Dr. Sarah Johnson',
+    diagnosis: 'Healthy - no issues',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+    calledAt: new Date(Date.now() - 45 * 60 * 1000),
+    completedAt: new Date(Date.now() - 20 * 60 * 1000),
+    waitTime: 15,
+    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000)
   }
 ];
 
@@ -1301,14 +1429,98 @@ const demoNotifications = [
   }
 ];
 
-// In-memory storage (mutable)
-let users = [...demoUsers];
-let patients = [...demoPatients];
-let assessments = [...demoAssessments];
-let queue = [...demoQueue];
-let billing = [...demoBilling];
-let notifications = [...demoNotifications];
-let chatMessages = [];
+// ============================================
+// PERSISTENT DATA STORAGE FUNCTIONS
+// ============================================
+
+// Ensure data directory exists
+const ensureDataDir = () => {
+  const dataDir = path.dirname(DATA_FILE);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+};
+
+// Save all data to file
+const saveToFile = () => {
+  try {
+    ensureDataDir();
+    const data = {
+      users,
+      patients,
+      assessments,
+      queue,
+      billing,
+      notifications,
+      chatMessages,
+      savedAt: new Date().toISOString()
+    };
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
+    console.log('📁 Data saved to persistent storage');
+  } catch (error) {
+    console.error('❌ Error saving data:', error.message);
+  }
+};
+
+// Load data from file if exists
+const loadFromFile = () => {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const rawData = fs.readFileSync(DATA_FILE, 'utf8');
+      const data = JSON.parse(rawData);
+      console.log('📂 Loaded persistent data from:', data.savedAt);
+      return data;
+    }
+  } catch (error) {
+    console.error('❌ Error loading data:', error.message);
+  }
+  return null;
+};
+
+// Initialize: Load from file or use defaults
+const initializeData = () => {
+  const savedData = loadFromFile();
+  if (savedData) {
+    return {
+      users: savedData.users || [...demoUsers],
+      patients: savedData.patients || [...demoPatients],
+      assessments: savedData.assessments || [...demoAssessments],
+      queue: savedData.queue || [...demoQueue],
+      billing: savedData.billing || [...demoBilling],
+      notifications: savedData.notifications || [...demoNotifications],
+      chatMessages: savedData.chatMessages || []
+    };
+  }
+  return {
+    users: [...demoUsers],
+    patients: [...demoPatients],
+    assessments: [...demoAssessments],
+    queue: [...demoQueue],
+    billing: [...demoBilling],
+    notifications: [...demoNotifications],
+    chatMessages: []
+  };
+};
+
+// Initialize data from file or defaults
+const initialData = initializeData();
+
+// In-memory storage (mutable) - PERSISTENT
+let users = initialData.users;
+let patients = initialData.patients;
+let assessments = initialData.assessments;
+let queue = initialData.queue;
+let billing = initialData.billing;
+let notifications = initialData.notifications;
+let chatMessages = initialData.chatMessages;
+
+// Auto-save every 30 seconds
+setInterval(saveToFile, 30000);
+
+// Save on process exit
+process.on('beforeExit', saveToFile);
+process.on('SIGINT', () => { saveToFile(); process.exit(); });
+process.on('SIGTERM', () => { saveToFile(); process.exit(); });
 
 
 // Check if MongoDB is connected
@@ -1342,6 +1554,7 @@ export const demoStore = {
         createdAt: new Date() 
       };
       users.push(newUser);
+      saveToFile();
       return newUser;
     },
     findAll: () => users,
@@ -1349,12 +1562,14 @@ export const demoStore = {
       const index = users.findIndex(u => u._id === id);
       if (index === -1) return null;
       users[index] = { ...users[index], ...update, updatedAt: new Date() };
+      saveToFile();
       return users[index];
     },
     delete: (id) => {
       const index = users.findIndex(u => u._id === id);
       if (index === -1) return false;
       users.splice(index, 1);
+      saveToFile();
       return true;
     }
   },
@@ -1375,6 +1590,7 @@ export const demoStore = {
         createdAt: new Date() 
       };
       patients.push(newPatient);
+      saveToFile();
       return newPatient;
     },
     find: (query = {}) => {
@@ -1391,12 +1607,14 @@ export const demoStore = {
       const index = patients.findIndex(p => p._id === id);
       if (index === -1) return null;
       patients[index] = { ...patients[index], ...data, updatedAt: new Date() };
+      saveToFile();
       return patients[index];
     },
     delete: (id) => {
       const index = patients.findIndex(p => p._id === id);
       if (index === -1) return false;
       patients.splice(index, 1);
+      saveToFile();
       return true;
     }
   },
@@ -1407,6 +1625,7 @@ export const demoStore = {
     create: (assessmentData) => {
       const newAssessment = { _id: `assessment-${Date.now()}`, ...assessmentData, createdAt: new Date() };
       assessments.push(newAssessment);
+      saveToFile();
       return newAssessment;
     },
     find: (query = {}) => {
@@ -1420,6 +1639,13 @@ export const demoStore = {
       if (query.facilityId) result = result.filter(a => a.facilityId === query.facilityId);
       if (query.riskLevel) result = result.filter(a => a.riskLevel === query.riskLevel);
       return result.length;
+    },
+    update: (id, data) => {
+      const index = assessments.findIndex(a => a._id === id);
+      if (index === -1) return null;
+      assessments[index] = { ...assessments[index], ...data, updatedAt: new Date() };
+      saveToFile();
+      return assessments[index];
     }
   },
 
@@ -1434,6 +1660,7 @@ export const demoStore = {
       const token = `Q-2026-${String(queue.length + 1).padStart(4, '0')}`;
       const newEntry = { _id: `queue-${Date.now()}`, token, ...queueData, createdAt: new Date(), addedAt: new Date() };
       queue.push(newEntry);
+      saveToFile();
       return newEntry;
     },
     find: (query = {}) => {
@@ -1452,6 +1679,7 @@ export const demoStore = {
       const index = queue.findIndex(q => q._id === id);
       if (index !== -1) {
         queue[index] = { ...queue[index], ...update };
+        saveToFile();
         return queue[index];
       }
       return null;
@@ -1469,6 +1697,7 @@ export const demoStore = {
     create: (messageData) => {
       const newMessage = { _id: `chat-${Date.now()}`, ...messageData, createdAt: new Date() };
       chatMessages.push(newMessage);
+      saveToFile();
       return newMessage;
     },
     find: (query = {}) => {
@@ -1479,6 +1708,7 @@ export const demoStore = {
     deleteMany: (query = {}) => {
       if (query.sessionId) {
         chatMessages = chatMessages.filter(m => m.sessionId !== query.sessionId);
+        saveToFile();
       }
       return { deletedCount: 1 };
     }
@@ -1501,6 +1731,7 @@ export const demoStore = {
         createdAt: new Date() 
       };
       billing.push(newBill);
+      saveToFile();
       return newBill;
     },
     find: (query = {}) => {
@@ -1515,6 +1746,7 @@ export const demoStore = {
       const index = billing.findIndex(b => b._id === id);
       if (index === -1) return null;
       billing[index] = { ...billing[index], ...data, updatedAt: new Date() };
+      saveToFile();
       return billing[index];
     },
     addPayment: (id, paymentData) => {
@@ -1531,12 +1763,14 @@ export const demoStore = {
       } else {
         billing[index].status = 'partial';
       }
+      saveToFile();
       return billing[index];
     },
     addEmailHistory: (id, emailData) => {
       const index = billing.findIndex(b => b._id === id);
       if (index === -1) return null;
       billing[index].emailHistory.push({ ...emailData, sentAt: new Date() });
+      saveToFile();
       return billing[index];
     },
     countDocuments: (query = {}) => {
@@ -1576,6 +1810,7 @@ export const demoStore = {
         createdAt: new Date() 
       };
       notifications.push(newNotification);
+      saveToFile();
       return newNotification;
     },
     find: (query = {}) => {
@@ -1684,7 +1919,12 @@ export const demoStore = {
     return null;
   },
 
-  // Reset to initial state
+  // Save data manually
+  save: () => {
+    saveToFile();
+  },
+
+  // Reset to initial state (WARNING: This will delete all changes!)
   reset: () => {
     users = [...demoUsers];
     patients = [...demoPatients];
@@ -1693,6 +1933,8 @@ export const demoStore = {
     billing = [...demoBilling];
     notifications = [...demoNotifications];
     chatMessages = [];
+    saveToFile(); // Save reset state
+    console.log('⚠️ Data reset to initial state');
   }
 };
 

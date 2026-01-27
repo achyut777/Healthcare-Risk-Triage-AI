@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { billingAPI, queueAPI } from '../services/api';
+import { billingAPI, patientAPI, queueAPI } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
 // Icons
@@ -114,6 +114,7 @@ const Billing = () => {
   const [bills, setBills] = useState([]);
   const [stats, setStats] = useState(null);
   const [completedPatients, setCompletedPatients] = useState([]);
+  const [allPatients, setAllPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   
@@ -174,19 +175,25 @@ const Billing = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [billsRes, statsRes, queueRes] = await Promise.all([
+      const [billsRes, statsRes, queueRes, patientsRes] = await Promise.all([
         billingAPI.getAll(),
         billingAPI.getStats(),
         queueAPI.getStatus(),
+        patientAPI.getAll({ limit: 100 }),
       ]);
       
-      setBills(billsRes.data.data || billsRes.data.bills || []);
+      const billsData = billsRes.data.data || billsRes.data.bills || [];
+      setBills(billsData);
       setStats(statsRes.data.data || statsRes.data.stats);
+      
+      // Get all patients
+      const patients = patientsRes.data.data || patientsRes.data.patients || [];
+      setAllPatients(patients);
       
       // Get completed patients who might need billing
       const queueData = queueRes.data.data || queueRes.data;
       const completed = (queueData.completed || []).filter(
-        (q) => !bills.some((b) => b.queueToken === q.token)
+        (q) => !billsData.some((b) => b.queueToken === q.token)
       );
       setCompletedPatients(completed);
     } catch (error) {
@@ -201,19 +208,24 @@ const Billing = () => {
   const fetchDataSilent = async () => {
     try {
       setRefreshing(true);
-      const [billsRes, statsRes, queueRes] = await Promise.all([
+      const [billsRes, statsRes, queueRes, patientsRes] = await Promise.all([
         billingAPI.getAll(),
         billingAPI.getStats(),
         queueAPI.getStatus(),
+        patientAPI.getAll({ limit: 100 }),
       ]);
       
-      setBills(billsRes.data.data || billsRes.data.bills || []);
+      const billsData = billsRes.data.data || billsRes.data.bills || [];
+      setBills(billsData);
       setStats(statsRes.data.data || statsRes.data.stats);
       
+      // Get all patients
+      const patients = patientsRes.data.data || patientsRes.data.patients || [];
+      setAllPatients(patients);
+      
       const queueData = queueRes.data.data || queueRes.data;
-      const currentBills = billsRes.data.data || billsRes.data.bills || [];
       const completed = (queueData.completed || []).filter(
-        (q) => !currentBills.some((b) => b.queueToken === q.token)
+        (q) => !billsData.some((b) => b.queueToken === q.token)
       );
       setCompletedPatients(completed);
     } catch (error) {
@@ -721,7 +733,7 @@ const Billing = () => {
                 {/* Patient Selection */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Patient
+                    Select Patient from Queue (Recently Completed)
                   </label>
                   <select
                     value={newBill.patientId}
@@ -734,16 +746,41 @@ const Billing = () => {
                         queueToken: patient?.token || '',
                       });
                     }}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-3"
                   >
-                    <option value="">Select a patient...</option>
+                    <option value="">Select from queue...</option>
                     {completedPatients.map((patient) => (
-                      <option key={patient.patientId} value={patient.patientId}>
-                        {patient.patientName} ({patient.patientId}) - Token: {patient.token}
+                      <option key={patient.patientId || patient._id} value={patient.patientId || patient._id}>
+                        {patient.patientName} ({patient.patientId || patient._id}) - Token: {patient.token}
                       </option>
                     ))}
                   </select>
-                  <p className="text-sm text-gray-500 mt-1">
+                  
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Or Select from All Patients
+                  </label>
+                  <select
+                    value={newBill.patientId}
+                    onChange={(e) => {
+                      const patient = allPatients.find((p) => p.patientId === e.target.value || p._id === e.target.value);
+                      setNewBill({
+                        ...newBill,
+                        patientId: patient?.patientId || e.target.value,
+                        patientName: patient?.name || patient?.patientName || '',
+                        queueToken: '',
+                      });
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  >
+                    <option value="">Select a patient...</option>
+                    {allPatients.map((patient) => (
+                      <option key={patient.patientId || patient._id} value={patient.patientId || patient._id}>
+                        {patient.name || patient.patientName} ({patient.patientId || patient._id}) - {patient.age}yrs, {patient.gender}
+                      </option>
+                    ))}
+                  </select>
+                  
+                  <p className="text-sm text-gray-500 mt-3">
                     Or enter manually:
                   </p>
                   <div className="grid grid-cols-2 gap-4 mt-2">
