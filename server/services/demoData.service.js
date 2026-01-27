@@ -1,0 +1,1699 @@
+/**
+ * Demo Data Service
+ * In-memory data store for demo mode (when MongoDB is not available)
+ * Auto-generates patients and manages complete healthcare workflow
+ */
+import bcrypt from 'bcryptjs';
+
+// Demo Users (pre-hashed passwords)
+const demoUsers = [
+  {
+    _id: 'demo-user-001',
+    name: 'Dr. Admin Singh',
+    email: 'demo@healthtriage.ai',
+    password: '$2a$10$X4kv7j5ZcG39WgogSl16aurYXbgwZ.0Qr5rnU8zVbBvIx8mBZdgKi', // demo123
+    role: 'admin',
+    facilityId: 'PHC-001',
+    facilityName: 'Primary Health Centre - Sector 12',
+    phone: '+91 98765 43210',
+    specialization: 'Healthcare Administration',
+    isActive: true,
+    assessmentsCount: 156,
+    lastLogin: new Date(),
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo-user-002',
+    name: 'Dr. Sarah Johnson',
+    email: 'doctor@healthtriage.ai',
+    password: '$2a$10$8K0fVqXwLmYqYiNdYqZmKeZhKmP3Y8FhYyIFY8r8HJ5GhXwQgCMXy', // doctor123
+    role: 'doctor',
+    facilityId: 'PHC-001',
+    facilityName: 'Primary Health Centre - Sector 12',
+    phone: '+91 98765 43211',
+    specialization: 'General Medicine',
+    isActive: true,
+    assessmentsCount: 89,
+    lastLogin: new Date(),
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo-user-003',
+    name: 'Nurse Priya Sharma',
+    email: 'nurse@healthtriage.ai',
+    password: '$2a$10$QmZvR3JmFqMzOvR3YjZmFOHkNmYzYjVmMzQzYjRmNzQzYjRmNzQzY', // nurse123
+    role: 'nurse',
+    facilityId: 'PHC-001',
+    facilityName: 'Primary Health Centre - Sector 12',
+    phone: '+91 98765 43212',
+    specialization: 'Emergency Care',
+    isActive: true,
+    assessmentsCount: 234,
+    lastLogin: new Date(),
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo-user-004',
+    name: 'Amit Kumar',
+    email: 'staff@healthtriage.ai',
+    password: '$2a$10$QmZvR3JmFqMzOvR3YjZmFOHkNmYzYjVmMzQzYjRmNzQzYjRmNzQzY', // staff123
+    role: 'staff',
+    facilityId: 'PHC-001',
+    facilityName: 'Primary Health Centre - Sector 12',
+    phone: '+91 98765 43213',
+    specialization: 'Patient Registration',
+    isActive: true,
+    assessmentsCount: 45,
+    lastLogin: new Date(),
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo-user-005',
+    name: 'Dr. Rajiv Mehta',
+    email: 'doctor2@healthtriage.ai',
+    password: '$2a$10$8K0fVqXwLmYqYiNdYqZmKeZhKmP3Y8FhYyIFY8r8HJ5GhXwQgCMXy', // doctor123
+    role: 'doctor',
+    facilityId: 'PHC-001',
+    facilityName: 'Primary Health Centre - Sector 12',
+    phone: '+91 98765 43214',
+    specialization: 'Cardiology',
+    isActive: true,
+    assessmentsCount: 67,
+    lastLogin: new Date(),
+    createdAt: new Date()
+  },
+  {
+    _id: 'demo-user-006',
+    name: 'Nurse Anita Roy',
+    email: 'nurse2@healthtriage.ai',
+    password: '$2a$10$QmZvR3JmFqMzOvR3YjZmFOHkNmYzYjVmMzQzYjRmNzQzYjRmNzQzY', // nurse123
+    role: 'nurse',
+    facilityId: 'PHC-001',
+    facilityName: 'Primary Health Centre - Sector 12',
+    phone: '+91 98765 43215',
+    specialization: 'Pediatric Care',
+    isActive: true,
+    assessmentsCount: 189,
+    lastLogin: new Date(),
+    createdAt: new Date()
+  }
+];
+
+// Extended Demo Patients with diverse medical cases
+const demoPatients = [
+  { _id: 'patient-001', patientId: 'PT-2026-00001', name: 'Rajesh Kumar', age: 45, gender: 'male', contact: { phone: '+91 99887 76655', email: 'rajesh.k@email.com' }, address: '123 Main Street, Sector 12', bloodGroup: 'B+', allergies: ['Penicillin'], medicalHistory: ['Diabetes Type 2'], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-002', patientId: 'PT-2026-00002', name: 'Sunita Devi', age: 62, gender: 'female', contact: { phone: '+91 99887 76656', email: 'sunita.d@email.com' }, address: '456 Park Road, Sector 14', bloodGroup: 'O+', allergies: [], medicalHistory: ['Hypertension', 'Arthritis'], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-003', patientId: 'PT-2026-00003', name: 'Amit Singh', age: 28, gender: 'male', contact: { phone: '+91 99887 76657', email: 'amit.s@email.com' }, address: '789 Lake View, Sector 8', bloodGroup: 'A+', allergies: ['Sulfa drugs'], medicalHistory: [], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-004', patientId: 'PT-2026-00004', name: 'Priya Gupta', age: 35, gender: 'female', contact: { phone: '+91 99887 76658', email: 'priya.g@email.com' }, address: '321 Hill Side, Sector 5', bloodGroup: 'AB+', allergies: [], medicalHistory: ['Migraine'], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-005', patientId: 'PT-2026-00005', name: 'Ravi Verma', age: 55, gender: 'male', contact: { phone: '+91 99887 76659', email: 'ravi.v@email.com' }, address: '654 Green Park, Sector 11', bloodGroup: 'B-', allergies: ['Aspirin'], medicalHistory: ['COPD', 'Hypertension'], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-006', patientId: 'PT-2026-00006', name: 'Anita Sharma', age: 42, gender: 'female', contact: { phone: '+91 99887 76660', email: 'anita.s@email.com' }, address: '987 Rose Garden, Sector 9', bloodGroup: 'O-', allergies: [], medicalHistory: ['Thyroid'], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-007', patientId: 'PT-2026-00007', name: 'Vikram Patel', age: 70, gender: 'male', contact: { phone: '+91 99887 76661', email: 'vikram.p@email.com' }, address: '246 Temple Road, Sector 3', bloodGroup: 'A-', allergies: ['Ibuprofen'], medicalHistory: ['Heart Disease', 'Diabetes Type 2'], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-008', patientId: 'PT-2026-00008', name: 'Meera Reddy', age: 31, gender: 'female', contact: { phone: '+91 99887 76662', email: 'meera.r@email.com' }, address: '135 River Side, Sector 7', bloodGroup: 'AB-', allergies: [], medicalHistory: [], facilityId: 'PHC-001', createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-009', patientId: 'PT-2026-00009', name: 'Arjun Malhotra', age: 8, gender: 'male', contact: { phone: '+91 99887 76663', email: 'parent.arjun@email.com' }, address: '567 School Lane, Sector 15', bloodGroup: 'O+', allergies: ['Peanuts'], medicalHistory: ['Asthma'], isPediatric: true, facilityId: 'PHC-001', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-010', patientId: 'PT-2026-00010', name: 'Kavita Joshi', age: 29, gender: 'female', contact: { phone: '+91 99887 76664', email: 'kavita.j@email.com' }, address: '890 Market Street, Sector 6', bloodGroup: 'B+', allergies: [], medicalHistory: [], isPregnant: true, pregnancyWeeks: 28, facilityId: 'PHC-001', createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
+  { _id: 'patient-011', patientId: 'PT-2026-00011', name: 'Mohammed Khan', age: 48, gender: 'male', contact: { phone: '+91 99887 76665', email: 'khan.m@email.com' }, address: '432 Station Road, Sector 10', bloodGroup: 'A+', allergies: [], medicalHistory: ['Kidney Disease'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-012', patientId: 'PT-2026-00012', name: 'Lakshmi Nair', age: 56, gender: 'female', contact: { phone: '+91 99887 76666', email: 'lakshmi.n@email.com' }, address: '765 Beach Road, Sector 2', bloodGroup: 'O+', allergies: ['Morphine'], medicalHistory: ['Breast Cancer - Survivor'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-013', patientId: 'PT-2026-00013', name: 'Baby Aanya', age: 2, gender: 'female', contact: { phone: '+91 99887 76667', email: 'parent.aanya@email.com' }, address: '111 Garden View, Sector 4', bloodGroup: 'B+', allergies: [], medicalHistory: [], isPediatric: true, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-014', patientId: 'PT-2026-00014', name: 'Suresh Iyer', age: 67, gender: 'male', contact: { phone: '+91 99887 76668', email: 'suresh.i@email.com' }, address: '222 Temple Street, Sector 1', bloodGroup: 'AB+', allergies: ['Codeine'], medicalHistory: ['Parkinson\'s Disease', 'Hypertension'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-015', patientId: 'PT-2026-00015', name: 'Neha Kapoor', age: 24, gender: 'female', contact: { phone: '+91 99887 76669', email: 'neha.k@email.com' }, address: '333 College Road, Sector 13', bloodGroup: 'A-', allergies: [], medicalHistory: ['Anxiety', 'PCOS'], facilityId: 'PHC-001', createdAt: new Date() },
+  // NEW PATIENTS - Women's Health, Critical Conditions, Diverse Diseases
+  { _id: 'patient-016', patientId: 'PT-2026-00016', name: 'Deepika Menon', age: 32, gender: 'female', contact: { phone: '+91 99887 76670', email: 'deepika.m@email.com' }, address: '444 MG Road, Sector 18', bloodGroup: 'O+', allergies: [], medicalHistory: ['Endometriosis'], isPregnant: true, pregnancyWeeks: 36, highRiskPregnancy: true, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-017', patientId: 'PT-2026-00017', name: 'Rashmi Pillai', age: 26, gender: 'female', contact: { phone: '+91 99887 76671', email: 'rashmi.p@email.com' }, address: '555 Lake Road, Sector 19', bloodGroup: 'B+', allergies: ['Latex'], medicalHistory: ['Dysmenorrhea', 'Iron Deficiency Anemia'], menstrualInfo: { lastPeriod: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000), cycleLength: 28, regularCycle: false }, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-018', patientId: 'PT-2026-00018', name: 'Fatima Begum', age: 38, gender: 'female', contact: { phone: '+91 99887 76672', email: 'fatima.b@email.com' }, address: '666 Station Lane, Sector 20', bloodGroup: 'A+', allergies: [], medicalHistory: ['Gestational Diabetes', 'Previous C-Section'], isPregnant: true, pregnancyWeeks: 34, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-019', patientId: 'PT-2026-00019', name: 'Sanjay Agarwal', age: 52, gender: 'male', contact: { phone: '+91 99887 76673', email: 'sanjay.a@email.com' }, address: '777 Industrial Area, Sector 21', bloodGroup: 'AB+', allergies: ['Contrast dye'], medicalHistory: ['Coronary Artery Disease', 'Stent placement 2024', 'Hyperlipidemia'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-020', patientId: 'PT-2026-00020', name: 'Pooja Saxena', age: 19, gender: 'female', contact: { phone: '+91 99887 76674', email: 'pooja.s@email.com' }, address: '888 University Road, Sector 22', bloodGroup: 'O-', allergies: [], medicalHistory: ['PCOS', 'Acne'], menstrualInfo: { lastPeriod: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), cycleLength: 45, regularCycle: false, heavyBleeding: true }, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-021', patientId: 'PT-2026-00021', name: 'Ramesh Choudhary', age: 58, gender: 'male', contact: { phone: '+91 99887 76675', email: 'ramesh.c@email.com' }, address: '999 Old City, Sector 23', bloodGroup: 'B-', allergies: ['Metformin'], medicalHistory: ['Type 2 Diabetes', 'Diabetic Retinopathy', 'Peripheral Neuropathy'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-022', patientId: 'PT-2026-00022', name: 'Baby Rohan', age: 6, gender: 'male', contact: { phone: '+91 99887 76676', email: 'parent.rohan@email.com' }, address: '101 School Colony, Sector 24', bloodGroup: 'A+', allergies: ['Eggs', 'Milk'], medicalHistory: ['Epilepsy', 'Developmental Delay'], isPediatric: true, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-023', patientId: 'PT-2026-00023', name: 'Geeta Rani', age: 48, gender: 'female', contact: { phone: '+91 99887 76677', email: 'geeta.r@email.com' }, address: '202 Temple Colony, Sector 25', bloodGroup: 'O+', allergies: [], medicalHistory: ['Perimenopause', 'Osteoporosis', 'Hypothyroid'], menstrualInfo: { lastPeriod: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), irregularBleeding: true, hotFlashes: true }, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-024', patientId: 'PT-2026-00024', name: 'Vinod Tiwari', age: 44, gender: 'male', contact: { phone: '+91 99887 76678', email: 'vinod.t@email.com' }, address: '303 Civil Lines, Sector 26', bloodGroup: 'AB-', allergies: [], medicalHistory: ['Chronic Hepatitis B', 'Liver Cirrhosis'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-025', patientId: 'PT-2026-00025', name: 'Sneha Kulkarni', age: 27, gender: 'female', contact: { phone: '+91 99887 76679', email: 'sneha.k@email.com' }, address: '404 IT Park, Sector 27', bloodGroup: 'B+', allergies: [], medicalHistory: ['Graves Disease', 'Hyperthyroidism'], isPregnant: true, pregnancyWeeks: 12, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-026', patientId: 'PT-2026-00026', name: 'Prakash Mishra', age: 72, gender: 'male', contact: { phone: '+91 99887 76680', email: 'prakash.m@email.com' }, address: '505 Retirement Home, Sector 28', bloodGroup: 'A+', allergies: ['NSAIDs'], medicalHistory: ['Chronic Kidney Disease Stage 4', 'Anemia', 'Hypertension'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-027', patientId: 'PT-2026-00027', name: 'Anjali Deshmukh', age: 33, gender: 'female', contact: { phone: '+91 99887 76681', email: 'anjali.d@email.com' }, address: '606 Green Valley, Sector 29', bloodGroup: 'O+', allergies: [], medicalHistory: ['Ectopic Pregnancy History', 'Infertility'], menstrualInfo: { lastPeriod: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000), cycleLength: 30, painfulPeriods: true }, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-028', patientId: 'PT-2026-00028', name: 'Harish Bhatt', age: 61, gender: 'male', contact: { phone: '+91 99887 76682', email: 'harish.b@email.com' }, address: '707 Mall Road, Sector 30', bloodGroup: 'B+', allergies: [], medicalHistory: ['Atrial Fibrillation', 'On Warfarin', 'Previous Stroke'], facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-029', patientId: 'PT-2026-00029', name: 'Rekha Verma', age: 41, gender: 'female', contact: { phone: '+91 99887 76683', email: 'rekha.v@email.com' }, address: '808 Housing Board, Sector 31', bloodGroup: 'A-', allergies: [], medicalHistory: ['Uterine Fibroids', 'Menorrhagia'], menstrualInfo: { lastPeriod: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), cycleLength: 21, heavyBleeding: true, clots: true }, facilityId: 'PHC-001', createdAt: new Date() },
+  { _id: 'patient-030', patientId: 'PT-2026-00030', name: 'Baby Ishaan', age: 4, gender: 'male', contact: { phone: '+91 99887 76684', email: 'parent.ishaan@email.com' }, address: '909 Kids Colony, Sector 32', bloodGroup: 'O+', allergies: ['Penicillin'], medicalHistory: ['Congenital Heart Defect', 'VSD Repair 2024'], isPediatric: true, facilityId: 'PHC-001', createdAt: new Date() }
+];
+
+// Demo Assessments - Diverse medical cases with realistic vitals
+const demoAssessments = [
+  {
+    _id: 'assessment-001',
+    patient: 'patient-001',
+    patientId: 'PT-2026-00001',
+    patientName: 'Rajesh Kumar',
+    patientAge: 45,
+    patientGender: 'male',
+    vitals: { age: 45, gender: 1, heartRate: 92, bpSystolic: 145, bpDiastolic: 92, temperature: 37.8, oxygenSaturation: 96, respiratoryRate: 18, symptomDurationDays: 3, painLevel: 6, weight: 78, height: 172 },
+    chiefComplaint: 'Persistent cough and mild fever',
+    symptoms: ['Cough', 'Fever', 'Fatigue', 'Body ache'],
+    riskLevel: 'high',
+    riskScore: 75,
+    urgencyScore: 75,
+    confidence: 0.87,
+    recommendations: ['🔴 PRIORITY: Patient should be seen within 30 minutes', 'Monitor vital signs closely', 'Consider chest X-ray', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-002',
+    patient: 'patient-002',
+    patientId: 'PT-2026-00002',
+    patientName: 'Sunita Devi',
+    patientAge: 62,
+    patientGender: 'female',
+    vitals: { age: 62, gender: 0, heartRate: 110, bpSystolic: 165, bpDiastolic: 100, temperature: 37.2, oxygenSaturation: 92, respiratoryRate: 24, symptomDurationDays: 1, painLevel: 8, weight: 65, height: 155 },
+    chiefComplaint: 'Chest pain and shortness of breath',
+    symptoms: ['Chest pain', 'Shortness of breath', 'Dizziness', 'Sweating'],
+    riskLevel: 'critical',
+    riskScore: 92,
+    urgencyScore: 92,
+    confidence: 0.95,
+    recommendations: ['🚨 CRITICAL: Immediate medical attention required', 'ECG recommended immediately', 'Cardiac monitoring essential', 'Consider cardiac enzymes', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'in-consultation',
+    validatedByDoctor: true,
+    assignedDoctor: 'demo-user-002',
+    assignedDoctorName: 'Dr. Sarah Johnson',
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-003',
+    patient: 'patient-003',
+    patientId: 'PT-2026-00003',
+    patientName: 'Amit Singh',
+    patientAge: 28,
+    patientGender: 'male',
+    vitals: { age: 28, gender: 1, heartRate: 78, bpSystolic: 118, bpDiastolic: 76, temperature: 38.5, oxygenSaturation: 98, respiratoryRate: 16, symptomDurationDays: 2, painLevel: 4, weight: 72, height: 175 },
+    chiefComplaint: 'High fever with body ache',
+    symptoms: ['High fever', 'Body ache', 'Headache', 'Chills'],
+    riskLevel: 'medium',
+    riskScore: 48,
+    urgencyScore: 48,
+    confidence: 0.85,
+    recommendations: ['🟡 ELEVATED: Patient should be seen within 1 hour', 'Antipyretic medication may help', 'Hydration important', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-004',
+    patient: 'patient-004',
+    patientId: 'PT-2026-00004',
+    patientName: 'Priya Gupta',
+    patientAge: 35,
+    patientGender: 'female',
+    vitals: { age: 35, gender: 0, heartRate: 72, bpSystolic: 115, bpDiastolic: 75, temperature: 37.0, oxygenSaturation: 99, respiratoryRate: 14, symptomDurationDays: 1, painLevel: 3, weight: 58, height: 162 },
+    chiefComplaint: 'Mild headache and nausea',
+    symptoms: ['Headache', 'Nausea', 'Light sensitivity'],
+    riskLevel: 'low',
+    riskScore: 22,
+    urgencyScore: 22,
+    confidence: 0.92,
+    recommendations: ['🟢 ROUTINE: Patient can be seen in queue order', 'Rest and hydration advised', 'Monitor for worsening symptoms', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 30 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-005',
+    patient: 'patient-009',
+    patientId: 'PT-2026-00009',
+    patientName: 'Arjun Malhotra',
+    patientAge: 8,
+    patientGender: 'male',
+    vitals: { age: 8, gender: 1, heartRate: 110, bpSystolic: 95, bpDiastolic: 60, temperature: 39.2, oxygenSaturation: 95, respiratoryRate: 28, symptomDurationDays: 1, painLevel: 5, weight: 25, height: 125 },
+    chiefComplaint: 'High fever with wheezing',
+    symptoms: ['High fever', 'Wheezing', 'Cough', 'Difficulty breathing'],
+    riskLevel: 'high',
+    riskScore: 78,
+    urgencyScore: 78,
+    confidence: 0.88,
+    isPediatric: true,
+    recommendations: ['🔴 PEDIATRIC PRIORITY: Child needs immediate attention', 'Nebulization may be required', 'Monitor oxygen saturation closely', 'Consider pediatric dosage medications', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-006',
+    assessedByName: 'Nurse Anita Roy',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 45 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-006',
+    patient: 'patient-010',
+    patientId: 'PT-2026-00010',
+    patientName: 'Kavita Joshi',
+    patientAge: 29,
+    patientGender: 'female',
+    vitals: { age: 29, gender: 0, heartRate: 88, bpSystolic: 125, bpDiastolic: 82, temperature: 37.1, oxygenSaturation: 98, respiratoryRate: 18, symptomDurationDays: 2, painLevel: 4, weight: 68, height: 160 },
+    chiefComplaint: 'Abdominal pain and swelling',
+    symptoms: ['Abdominal pain', 'Swelling in feet', 'Headache'],
+    riskLevel: 'high',
+    riskScore: 70,
+    urgencyScore: 70,
+    confidence: 0.85,
+    isPregnant: true,
+    pregnancyWeeks: 28,
+    recommendations: ['🔴 OBSTETRIC PRIORITY: Pregnant patient needs attention', 'Check for signs of preeclampsia', 'Fetal monitoring recommended', 'Blood pressure monitoring essential', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 20 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-007',
+    patient: 'patient-007',
+    patientId: 'PT-2026-00007',
+    patientName: 'Vikram Patel',
+    patientAge: 70,
+    patientGender: 'male',
+    vitals: { age: 70, gender: 1, heartRate: 52, bpSystolic: 90, bpDiastolic: 55, temperature: 36.5, oxygenSaturation: 89, respiratoryRate: 22, symptomDurationDays: 1, painLevel: 6, weight: 70, height: 168 },
+    chiefComplaint: 'Weakness and confusion',
+    symptoms: ['Weakness', 'Confusion', 'Low blood pressure', 'Slow heart rate'],
+    riskLevel: 'critical',
+    riskScore: 88,
+    urgencyScore: 88,
+    confidence: 0.91,
+    recommendations: ['🚨 CRITICAL: Elderly patient with concerning vitals', 'IV access recommended', 'ECG monitoring required', 'Check blood glucose', 'Consider sepsis workup', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 15 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-008',
+    patient: 'patient-011',
+    patientId: 'PT-2026-00011',
+    patientName: 'Mohammed Khan',
+    patientAge: 48,
+    patientGender: 'male',
+    vitals: { age: 48, gender: 1, heartRate: 85, bpSystolic: 140, bpDiastolic: 88, temperature: 37.0, oxygenSaturation: 97, respiratoryRate: 16, symptomDurationDays: 3, painLevel: 5, weight: 82, height: 170 },
+    chiefComplaint: 'Frequent urination and thirst',
+    symptoms: ['Frequent urination', 'Excessive thirst', 'Fatigue', 'Blurred vision'],
+    riskLevel: 'medium',
+    riskScore: 55,
+    urgencyScore: 55,
+    confidence: 0.82,
+    recommendations: ['🟡 Check blood glucose levels', 'Renal function tests recommended', 'Monitor fluid intake', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-006',
+    assessedByName: 'Nurse Anita Roy',
+    facilityId: 'PHC-001',
+    status: 'completed',
+    validatedByDoctor: true,
+    assignedDoctor: 'demo-user-005',
+    assignedDoctorName: 'Dr. Rajiv Mehta',
+    diagnosis: 'Suspected Type 2 Diabetes - Uncontrolled',
+    prescription: 'Metformin 500mg BD, Lifestyle modifications, Follow-up in 1 week',
+    notes: 'Patient counseled on diet and exercise. Lab tests ordered.',
+    completedAt: new Date(Date.now() - 30 * 60 * 1000),
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
+  },
+  // NEW ASSESSMENTS - Women's Health, Critical Conditions, Diverse Diseases
+  {
+    _id: 'assessment-009',
+    patient: 'patient-016',
+    patientId: 'PT-2026-00016',
+    patientName: 'Deepika Menon',
+    patientAge: 32,
+    patientGender: 'female',
+    vitals: { age: 32, gender: 0, heartRate: 102, bpSystolic: 148, bpDiastolic: 96, temperature: 37.0, oxygenSaturation: 98, respiratoryRate: 20, symptomDurationDays: 1, painLevel: 7, weight: 78, height: 158 },
+    chiefComplaint: 'Severe headache and visual disturbances - 36 weeks pregnant',
+    symptoms: ['Severe headache', 'Visual disturbances', 'Swelling in hands and face', 'Epigastric pain'],
+    riskLevel: 'critical',
+    riskScore: 95,
+    urgencyScore: 95,
+    confidence: 0.96,
+    isPregnant: true,
+    pregnancyWeeks: 36,
+    highRiskPregnancy: true,
+    recommendations: ['🚨 CRITICAL OBSTETRIC EMERGENCY: Suspected preeclampsia/eclampsia', 'Immediate BP monitoring and IV access', 'Magnesium sulfate protocol may be required', 'Urgent obstetric consultation', 'Fetal monitoring essential', 'Consider emergency delivery', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 10 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-010',
+    patient: 'patient-017',
+    patientId: 'PT-2026-00017',
+    patientName: 'Rashmi Pillai',
+    patientAge: 26,
+    patientGender: 'female',
+    vitals: { age: 26, gender: 0, heartRate: 95, bpSystolic: 100, bpDiastolic: 65, temperature: 37.2, oxygenSaturation: 99, respiratoryRate: 16, symptomDurationDays: 3, painLevel: 8, weight: 52, height: 160 },
+    chiefComplaint: 'Heavy menstrual bleeding with severe cramps',
+    symptoms: ['Heavy menstrual bleeding', 'Severe abdominal cramps', 'Dizziness', 'Fatigue', 'Passing large clots'],
+    riskLevel: 'high',
+    riskScore: 72,
+    urgencyScore: 72,
+    confidence: 0.85,
+    menstrualRelated: true,
+    recommendations: ['🔴 PRIORITY: Heavy menstrual bleeding - check hemoglobin', 'IV access for possible fluid resuscitation', 'Pain management required', 'Rule out ectopic pregnancy - pregnancy test', 'Consider tranexamic acid', 'Gynecology referral recommended', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-006',
+    assessedByName: 'Nurse Anita Roy',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 25 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-011',
+    patient: 'patient-019',
+    patientId: 'PT-2026-00019',
+    patientName: 'Sanjay Agarwal',
+    patientAge: 52,
+    patientGender: 'male',
+    vitals: { age: 52, gender: 1, heartRate: 115, bpSystolic: 85, bpDiastolic: 55, temperature: 36.8, oxygenSaturation: 91, respiratoryRate: 26, symptomDurationDays: 0, painLevel: 9, weight: 85, height: 175 },
+    chiefComplaint: 'Severe crushing chest pain radiating to left arm',
+    symptoms: ['Crushing chest pain', 'Pain radiating to left arm', 'Profuse sweating', 'Nausea', 'Shortness of breath', 'Sense of impending doom'],
+    riskLevel: 'critical',
+    riskScore: 98,
+    urgencyScore: 98,
+    confidence: 0.98,
+    recommendations: ['🚨 STEMI ALERT: Suspected acute myocardial infarction', 'Immediate ECG - activate cath lab if available', 'Aspirin 325mg STAT', 'IV access and oxygen', 'Nitroglycerin if BP permits', 'Morphine for pain', 'Emergency cardiology consultation', 'Prepare for possible thrombolysis/PCI', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 5 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-012',
+    patient: 'patient-020',
+    patientId: 'PT-2026-00020',
+    patientName: 'Pooja Saxena',
+    patientAge: 19,
+    patientGender: 'female',
+    vitals: { age: 19, gender: 0, heartRate: 78, bpSystolic: 115, bpDiastolic: 75, temperature: 37.0, oxygenSaturation: 99, respiratoryRate: 14, symptomDurationDays: 30, painLevel: 4, weight: 72, height: 162 },
+    chiefComplaint: 'Missed periods for 2 months with acne flare-up',
+    symptoms: ['Amenorrhea - 2 months', 'Acne worsening', 'Weight gain', 'Facial hair growth', 'Mood swings'],
+    riskLevel: 'medium',
+    riskScore: 42,
+    urgencyScore: 42,
+    confidence: 0.80,
+    menstrualRelated: true,
+    pcosRelated: true,
+    recommendations: ['🟡 PCOS evaluation needed', 'Pregnancy test to rule out pregnancy', 'Hormonal profile - LH, FSH, testosterone', 'Fasting glucose and insulin levels', 'Pelvic ultrasound for ovarian cysts', 'Lifestyle counseling for weight management', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-006',
+    assessedByName: 'Nurse Anita Roy',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 35 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-013',
+    patient: 'patient-022',
+    patientId: 'PT-2026-00022',
+    patientName: 'Baby Rohan',
+    patientAge: 6,
+    patientGender: 'male',
+    vitals: { age: 6, gender: 1, heartRate: 130, bpSystolic: 90, bpDiastolic: 55, temperature: 39.5, oxygenSaturation: 96, respiratoryRate: 32, symptomDurationDays: 1, painLevel: 6, weight: 18, height: 110 },
+    chiefComplaint: 'High fever with seizure episode',
+    symptoms: ['High fever', 'Seizure episode at home', 'Drowsiness', 'Vomiting', 'Neck stiffness'],
+    riskLevel: 'critical',
+    riskScore: 90,
+    urgencyScore: 90,
+    confidence: 0.92,
+    isPediatric: true,
+    recommendations: ['🚨 CRITICAL PEDIATRIC: Febrile seizure with meningeal signs', 'Secure airway and monitor closely', 'IV access - anticonvulsant ready', 'Urgent lumbar puncture consideration', 'Blood cultures and CBC', 'Empiric antibiotics if meningitis suspected', 'Pediatric neurologist consultation', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-006',
+    assessedByName: 'Nurse Anita Roy',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 8 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-014',
+    patient: 'patient-023',
+    patientId: 'PT-2026-00023',
+    patientName: 'Geeta Rani',
+    patientAge: 48,
+    patientGender: 'female',
+    vitals: { age: 48, gender: 0, heartRate: 88, bpSystolic: 135, bpDiastolic: 85, temperature: 37.1, oxygenSaturation: 98, respiratoryRate: 16, symptomDurationDays: 60, painLevel: 3, weight: 68, height: 155 },
+    chiefComplaint: 'Hot flashes and irregular bleeding for 3 months',
+    symptoms: ['Hot flashes', 'Night sweats', 'Irregular bleeding', 'Mood changes', 'Sleep disturbances', 'Joint pain'],
+    riskLevel: 'low',
+    riskScore: 28,
+    urgencyScore: 28,
+    confidence: 0.88,
+    menstrualRelated: true,
+    perimenopausal: true,
+    recommendations: ['🟢 Perimenopausal symptoms - routine evaluation', 'Thyroid function tests', 'Pelvic ultrasound to rule out pathology', 'Bone density screening recommended', 'Discuss hormone replacement therapy options', 'Lifestyle modifications for symptoms', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 40 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-015',
+    patient: 'patient-026',
+    patientId: 'PT-2026-00026',
+    patientName: 'Prakash Mishra',
+    patientAge: 72,
+    patientGender: 'male',
+    vitals: { age: 72, gender: 1, heartRate: 68, bpSystolic: 180, bpDiastolic: 110, temperature: 37.0, oxygenSaturation: 93, respiratoryRate: 22, symptomDurationDays: 2, painLevel: 4, weight: 65, height: 165 },
+    chiefComplaint: 'Severe shortness of breath and leg swelling',
+    symptoms: ['Severe dyspnea', 'Bilateral leg swelling', 'Cannot lie flat', 'Fatigue', 'Reduced urine output'],
+    riskLevel: 'critical',
+    riskScore: 87,
+    urgencyScore: 87,
+    confidence: 0.90,
+    recommendations: ['🚨 CRITICAL: Acute decompensated heart failure with CKD', 'Immediate oxygen and diuretics', 'Strict fluid restriction', 'Nephrology consultation - dialysis may be needed', 'ECG and chest X-ray STAT', 'BNP and renal function tests', 'Consider ICU admission', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 12 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-016',
+    patient: 'patient-029',
+    patientId: 'PT-2026-00029',
+    patientName: 'Rekha Verma',
+    patientAge: 41,
+    patientGender: 'female',
+    vitals: { age: 41, gender: 0, heartRate: 100, bpSystolic: 105, bpDiastolic: 68, temperature: 37.0, oxygenSaturation: 99, respiratoryRate: 16, symptomDurationDays: 5, painLevel: 6, weight: 58, height: 157 },
+    chiefComplaint: 'Extremely heavy periods with large clots',
+    symptoms: ['Menorrhagia - soaking pad every hour', 'Large blood clots', 'Severe cramping', 'Lightheadedness', 'Fatigue'],
+    riskLevel: 'high',
+    riskScore: 68,
+    urgencyScore: 68,
+    confidence: 0.84,
+    menstrualRelated: true,
+    recommendations: ['🔴 PRIORITY: Significant blood loss - check hemoglobin urgently', 'IV access for fluid resuscitation if needed', 'Tranexamic acid 1g TDS', 'Iron supplementation', 'Pelvic ultrasound for fibroids/polyps', 'Consider hormonal management', 'Gynecology referral - may need surgical intervention', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-006',
+    assessedByName: 'Nurse Anita Roy',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 18 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-017',
+    patient: 'patient-028',
+    patientId: 'PT-2026-00028',
+    patientName: 'Harish Bhatt',
+    patientAge: 61,
+    patientGender: 'male',
+    vitals: { age: 61, gender: 1, heartRate: 145, bpSystolic: 90, bpDiastolic: 60, temperature: 36.8, oxygenSaturation: 94, respiratoryRate: 24, symptomDurationDays: 0, painLevel: 5, weight: 75, height: 172 },
+    chiefComplaint: 'Palpitations with near-syncope episode',
+    symptoms: ['Rapid palpitations', 'Near fainting episode', 'Weakness', 'Confusion', 'Shortness of breath'],
+    riskLevel: 'critical',
+    riskScore: 85,
+    urgencyScore: 85,
+    confidence: 0.89,
+    recommendations: ['🚨 CRITICAL: Rapid AFib with hemodynamic instability', 'Continuous cardiac monitoring', 'Check INR - patient on Warfarin', 'Rate control vs cardioversion decision needed', 'Hold anticoagulation if procedure planned', 'IV access and fluids', 'Emergency cardiology consultation', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 7 * 60 * 1000)
+  },
+  {
+    _id: 'assessment-018',
+    patient: 'patient-018',
+    patientId: 'PT-2026-00018',
+    patientName: 'Fatima Begum',
+    patientAge: 38,
+    patientGender: 'female',
+    vitals: { age: 38, gender: 0, heartRate: 92, bpSystolic: 130, bpDiastolic: 82, temperature: 37.0, oxygenSaturation: 98, respiratoryRate: 18, symptomDurationDays: 1, painLevel: 5, weight: 82, height: 160 },
+    chiefComplaint: 'Reduced fetal movements - 34 weeks pregnant with GDM',
+    symptoms: ['Decreased fetal movements', 'Mild abdominal discomfort', 'Previous C-section scar tenderness'],
+    riskLevel: 'high',
+    riskScore: 75,
+    urgencyScore: 75,
+    confidence: 0.87,
+    isPregnant: true,
+    pregnancyWeeks: 34,
+    gestationalDiabetes: true,
+    recommendations: ['🔴 OBSTETRIC PRIORITY: Reduced fetal movements in high-risk pregnancy', 'Immediate NST/CTG monitoring', 'Biophysical profile if NST non-reactive', 'Blood glucose monitoring', 'Assess C-section scar', 'Obstetric team notification', 'Consider admission for monitoring', '📋 All findings must be verified by examining healthcare professional'],
+    assessedBy: 'demo-user-003',
+    assessedByName: 'Nurse Priya Sharma',
+    facilityId: 'PHC-001',
+    status: 'pending',
+    validatedByDoctor: false,
+    createdAt: new Date(Date.now() - 22 * 60 * 1000)
+  }
+];
+
+// Demo Queue - Active patients in queue with priorities
+const demoQueue = [
+  {
+    _id: 'queue-001',
+    token: 'Q-2026-0001',
+    patient: 'patient-007',
+    patientId: 'PT-2026-00007',
+    patientName: 'Vikram Patel',
+    age: 70,
+    gender: 'male',
+    symptoms: 'Weakness and confusion',
+    priority: 'critical',
+    urgencyScore: 88,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-007',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 15 * 60 * 1000),
+    createdAt: new Date(Date.now() - 15 * 60 * 1000)
+  },
+  {
+    _id: 'queue-002',
+    token: 'Q-2026-0002',
+    patient: 'patient-002',
+    patientId: 'PT-2026-00002',
+    patientName: 'Sunita Devi',
+    age: 62,
+    gender: 'female',
+    symptoms: 'Chest pain and shortness of breath',
+    priority: 'critical',
+    urgencyScore: 92,
+    status: 'in-consultation',
+    vitalsRecorded: true,
+    assessment: 'assessment-002',
+    assignedDoctor: 'demo-user-002',
+    assignedDoctorName: 'Dr. Sarah Johnson',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 45 * 60 * 1000),
+    calledAt: new Date(Date.now() - 30 * 60 * 1000),
+    createdAt: new Date(Date.now() - 45 * 60 * 1000)
+  },
+  {
+    _id: 'queue-003',
+    token: 'Q-2026-0003',
+    patient: 'patient-009',
+    patientId: 'PT-2026-00009',
+    patientName: 'Arjun Malhotra',
+    age: 8,
+    gender: 'male',
+    symptoms: 'High fever with wheezing',
+    priority: 'high',
+    urgencyScore: 78,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-005',
+    isPediatric: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 45 * 60 * 1000),
+    createdAt: new Date(Date.now() - 45 * 60 * 1000)
+  },
+  {
+    _id: 'queue-004',
+    token: 'Q-2026-0004',
+    patient: 'patient-001',
+    patientId: 'PT-2026-00001',
+    patientName: 'Rajesh Kumar',
+    age: 45,
+    gender: 'male',
+    symptoms: 'Persistent cough and mild fever',
+    priority: 'high',
+    urgencyScore: 75,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-001',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 30 * 60 * 1000),
+    createdAt: new Date(Date.now() - 30 * 60 * 1000)
+  },
+  {
+    _id: 'queue-005',
+    token: 'Q-2026-0005',
+    patient: 'patient-010',
+    patientId: 'PT-2026-00010',
+    patientName: 'Kavita Joshi',
+    age: 29,
+    gender: 'female',
+    symptoms: 'Abdominal pain and swelling (Pregnant 28 weeks)',
+    priority: 'high',
+    urgencyScore: 70,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-006',
+    isPregnant: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 20 * 60 * 1000),
+    createdAt: new Date(Date.now() - 20 * 60 * 1000)
+  },
+  {
+    _id: 'queue-006',
+    token: 'Q-2026-0006',
+    patient: 'patient-003',
+    patientId: 'PT-2026-00003',
+    patientName: 'Amit Singh',
+    age: 28,
+    gender: 'male',
+    symptoms: 'High fever with body ache',
+    priority: 'medium',
+    urgencyScore: 48,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-003',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 60 * 60 * 1000),
+    createdAt: new Date(Date.now() - 60 * 60 * 1000)
+  },
+  {
+    _id: 'queue-007',
+    token: 'Q-2026-0007',
+    patient: 'patient-004',
+    patientId: 'PT-2026-00004',
+    patientName: 'Priya Gupta',
+    age: 35,
+    gender: 'female',
+    symptoms: 'Mild headache and nausea',
+    priority: 'low',
+    urgencyScore: 22,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-004',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 25 * 60 * 1000),
+    createdAt: new Date(Date.now() - 25 * 60 * 1000)
+  },
+  {
+    _id: 'queue-008',
+    token: 'Q-2026-0008',
+    patient: 'patient-012',
+    patientId: 'PT-2026-00012',
+    patientName: 'Lakshmi Nair',
+    age: 56,
+    gender: 'female',
+    symptoms: 'Follow-up visit for regular checkup',
+    priority: 'low',
+    urgencyScore: 15,
+    status: 'waiting',
+    vitalsRecorded: false,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 10 * 60 * 1000),
+    createdAt: new Date(Date.now() - 10 * 60 * 1000)
+  },
+  {
+    _id: 'queue-009',
+    token: 'Q-2026-0009',
+    patient: 'patient-011',
+    patientId: 'PT-2026-00011',
+    patientName: 'Mohammed Khan',
+    age: 48,
+    gender: 'male',
+    symptoms: 'Frequent urination and thirst',
+    priority: 'medium',
+    urgencyScore: 55,
+    status: 'completed',
+    vitalsRecorded: true,
+    assessment: 'assessment-008',
+    assignedDoctor: 'demo-user-005',
+    assignedDoctorName: 'Dr. Rajiv Mehta',
+    diagnosis: 'Suspected Type 2 Diabetes - Uncontrolled',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 4 * 60 * 60 * 1000),
+    calledAt: new Date(Date.now() - 3.5 * 60 * 60 * 1000),
+    completedAt: new Date(Date.now() - 30 * 60 * 1000),
+    waitTime: 25,
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'queue-010',
+    token: 'Q-2026-0010',
+    patient: 'patient-015',
+    patientId: 'PT-2026-00015',
+    patientName: 'Neha Kapoor',
+    age: 24,
+    gender: 'female',
+    symptoms: 'Anxiety and sleep issues',
+    priority: 'low',
+    urgencyScore: 25,
+    status: 'waiting',
+    vitalsRecorded: false,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 5 * 60 * 1000),
+    createdAt: new Date(Date.now() - 5 * 60 * 1000)
+  },
+  // NEW QUEUE ENTRIES - Critical and Women's Health Cases
+  {
+    _id: 'queue-011',
+    token: 'Q-2026-0011',
+    patient: 'patient-019',
+    patientId: 'PT-2026-00019',
+    patientName: 'Sanjay Agarwal',
+    age: 52,
+    gender: 'male',
+    symptoms: 'Severe crushing chest pain - SUSPECTED MI',
+    priority: 'critical',
+    urgencyScore: 98,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-011',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 5 * 60 * 1000),
+    createdAt: new Date(Date.now() - 5 * 60 * 1000)
+  },
+  {
+    _id: 'queue-012',
+    token: 'Q-2026-0012',
+    patient: 'patient-016',
+    patientId: 'PT-2026-00016',
+    patientName: 'Deepika Menon',
+    age: 32,
+    gender: 'female',
+    symptoms: 'Severe headache with visual disturbances - 36 wks PREGNANT',
+    priority: 'critical',
+    urgencyScore: 95,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-009',
+    isPregnant: true,
+    highRiskPregnancy: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 10 * 60 * 1000),
+    createdAt: new Date(Date.now() - 10 * 60 * 1000)
+  },
+  {
+    _id: 'queue-013',
+    token: 'Q-2026-0013',
+    patient: 'patient-022',
+    patientId: 'PT-2026-00022',
+    patientName: 'Baby Rohan',
+    age: 6,
+    gender: 'male',
+    symptoms: 'Febrile seizure with neck stiffness - PEDIATRIC EMERGENCY',
+    priority: 'critical',
+    urgencyScore: 90,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-013',
+    isPediatric: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 8 * 60 * 1000),
+    createdAt: new Date(Date.now() - 8 * 60 * 1000)
+  },
+  {
+    _id: 'queue-014',
+    token: 'Q-2026-0014',
+    patient: 'patient-026',
+    patientId: 'PT-2026-00026',
+    patientName: 'Prakash Mishra',
+    age: 72,
+    gender: 'male',
+    symptoms: 'Acute heart failure with CKD - Cannot breathe lying down',
+    priority: 'critical',
+    urgencyScore: 87,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-015',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 12 * 60 * 1000),
+    createdAt: new Date(Date.now() - 12 * 60 * 1000)
+  },
+  {
+    _id: 'queue-015',
+    token: 'Q-2026-0015',
+    patient: 'patient-028',
+    patientId: 'PT-2026-00028',
+    patientName: 'Harish Bhatt',
+    age: 61,
+    gender: 'male',
+    symptoms: 'Rapid AFib with near-syncope - ON WARFARIN',
+    priority: 'critical',
+    urgencyScore: 85,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-017',
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 7 * 60 * 1000),
+    createdAt: new Date(Date.now() - 7 * 60 * 1000)
+  },
+  {
+    _id: 'queue-016',
+    token: 'Q-2026-0016',
+    patient: 'patient-018',
+    patientId: 'PT-2026-00018',
+    patientName: 'Fatima Begum',
+    age: 38,
+    gender: 'female',
+    symptoms: 'Reduced fetal movements - 34 wks PREGNANT with GDM',
+    priority: 'high',
+    urgencyScore: 75,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-018',
+    isPregnant: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 22 * 60 * 1000),
+    createdAt: new Date(Date.now() - 22 * 60 * 1000)
+  },
+  {
+    _id: 'queue-017',
+    token: 'Q-2026-0017',
+    patient: 'patient-017',
+    patientId: 'PT-2026-00017',
+    patientName: 'Rashmi Pillai',
+    age: 26,
+    gender: 'female',
+    symptoms: 'Heavy menstrual bleeding with severe cramps',
+    priority: 'high',
+    urgencyScore: 72,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-010',
+    menstrualRelated: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 25 * 60 * 1000),
+    createdAt: new Date(Date.now() - 25 * 60 * 1000)
+  },
+  {
+    _id: 'queue-018',
+    token: 'Q-2026-0018',
+    patient: 'patient-029',
+    patientId: 'PT-2026-00029',
+    patientName: 'Rekha Verma',
+    age: 41,
+    gender: 'female',
+    symptoms: 'Menorrhagia - soaking pad every hour with clots',
+    priority: 'high',
+    urgencyScore: 68,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-016',
+    menstrualRelated: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 18 * 60 * 1000),
+    createdAt: new Date(Date.now() - 18 * 60 * 1000)
+  },
+  {
+    _id: 'queue-019',
+    token: 'Q-2026-0019',
+    patient: 'patient-020',
+    patientId: 'PT-2026-00020',
+    patientName: 'Pooja Saxena',
+    age: 19,
+    gender: 'female',
+    symptoms: 'Missed periods for 2 months - PCOS evaluation',
+    priority: 'medium',
+    urgencyScore: 42,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-012',
+    menstrualRelated: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 35 * 60 * 1000),
+    createdAt: new Date(Date.now() - 35 * 60 * 1000)
+  },
+  {
+    _id: 'queue-020',
+    token: 'Q-2026-0020',
+    patient: 'patient-023',
+    patientId: 'PT-2026-00023',
+    patientName: 'Geeta Rani',
+    age: 48,
+    gender: 'female',
+    symptoms: 'Hot flashes and irregular bleeding - Perimenopausal',
+    priority: 'low',
+    urgencyScore: 28,
+    status: 'waiting',
+    vitalsRecorded: true,
+    assessment: 'assessment-014',
+    menstrualRelated: true,
+    facilityId: 'PHC-001',
+    addedAt: new Date(Date.now() - 40 * 60 * 1000),
+    createdAt: new Date(Date.now() - 40 * 60 * 1000)
+  }
+];
+
+// Demo Billing Records
+const demoBilling = [
+  {
+    _id: 'bill-001',
+    billNo: 'BILL-2026-00001',
+    patientId: 'PT-2026-00011',
+    patientName: 'Mohammed Khan',
+    queueToken: 'Q-2026-0009',
+    services: [
+      { _id: 'svc-001', name: 'Consultation Fee', amount: 500, quantity: 1, category: 'consultation' },
+      { _id: 'svc-002', name: 'Blood Glucose Test', amount: 150, quantity: 1, category: 'lab' },
+      { _id: 'svc-003', name: 'HbA1c Test', amount: 450, quantity: 1, category: 'lab' },
+      { _id: 'svc-004', name: 'Lipid Profile', amount: 600, quantity: 1, category: 'lab' }
+    ],
+    consultationFee: 500,
+    discount: 100,
+    tax: 80,
+    totalAmount: 1680,
+    amountPaid: 1680,
+    balanceDue: 0,
+    status: 'paid',
+    payments: [
+      { _id: 'pay-001', method: 'upi', amount: 1680, transactionId: 'UPI2026012700001', upiId: 'khan.m@paytm', paidAt: new Date(Date.now() - 30 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [
+      { email: 'khan.m@email.com', sentAt: new Date(Date.now() - 25 * 60 * 1000), status: 'sent' }
+    ],
+    receiptNo: 'RCP-2026-00001',
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    paidAt: new Date(Date.now() - 30 * 60 * 1000),
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'bill-002',
+    billNo: 'BILL-2026-00002',
+    patientId: 'PT-2026-00005',
+    patientName: 'Ravi Verma',
+    queueToken: 'Q-2026-0010',
+    services: [
+      { _id: 'svc-005', name: 'Consultation Fee', amount: 500, quantity: 1, category: 'consultation' },
+      { _id: 'svc-006', name: 'Chest X-Ray', amount: 400, quantity: 1, category: 'radiology' },
+      { _id: 'svc-007', name: 'Nebulization', amount: 200, quantity: 2, category: 'procedure' },
+      { _id: 'svc-008', name: 'Medications', amount: 350, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 500,
+    discount: 0,
+    tax: 82,
+    totalAmount: 1732,
+    amountPaid: 1732,
+    balanceDue: 0,
+    status: 'paid',
+    payments: [
+      { _id: 'pay-002', method: 'card', amount: 1732, transactionId: 'CRD2026012700002', cardLast4: '4242', paidAt: new Date(Date.now() - 2 * 60 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [
+      { email: 'ravi.v@email.com', sentAt: new Date(Date.now() - 115 * 60 * 1000), status: 'sent' }
+    ],
+    receiptNo: 'RCP-2026-00002',
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    paidAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'bill-003',
+    billNo: 'BILL-2026-00003',
+    patientId: 'PT-2026-00004',
+    patientName: 'Priya Gupta',
+    queueToken: 'Q-2026-0007',
+    services: [
+      { _id: 'svc-009', name: 'Consultation Fee', amount: 500, quantity: 1, category: 'consultation' },
+      { _id: 'svc-010', name: 'Paracetamol 500mg', amount: 25, quantity: 10, category: 'pharmacy' }
+    ],
+    consultationFee: 500,
+    discount: 50,
+    tax: 36,
+    totalAmount: 736,
+    amountPaid: 0,
+    balanceDue: 736,
+    status: 'pending',
+    payments: [],
+    emailHistory: [],
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    createdAt: new Date(Date.now() - 20 * 60 * 1000)
+  },
+  {
+    _id: 'bill-004',
+    billNo: 'BILL-2026-00004',
+    patientId: 'PT-2026-00002',
+    patientName: 'Sunita Devi',
+    queueToken: 'Q-2026-0002',
+    services: [
+      { _id: 'svc-011', name: 'Emergency Consultation', amount: 1000, quantity: 1, category: 'consultation' },
+      { _id: 'svc-012', name: 'ECG', amount: 300, quantity: 1, category: 'diagnostic' },
+      { _id: 'svc-013', name: 'Cardiac Enzymes (Troponin)', amount: 1200, quantity: 1, category: 'lab' },
+      { _id: 'svc-014', name: 'Oxygen Support', amount: 500, quantity: 1, category: 'procedure' },
+      { _id: 'svc-015', name: 'IV Medications', amount: 800, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 1000,
+    discount: 0,
+    tax: 190,
+    totalAmount: 3990,
+    amountPaid: 2000,
+    balanceDue: 1990,
+    status: 'partial',
+    payments: [
+      { _id: 'pay-003', method: 'cash', amount: 2000, transactionId: 'CASH2026012700003', paidAt: new Date(Date.now() - 2 * 60 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [],
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'bill-005',
+    billNo: 'BILL-2026-00005',
+    patientId: 'PT-2026-00010',
+    patientName: 'Kavita Joshi',
+    queueToken: 'Q-2026-0005',
+    services: [
+      { _id: 'svc-016', name: 'Antenatal Consultation', amount: 800, quantity: 1, category: 'consultation' },
+      { _id: 'svc-017', name: 'Obstetric Ultrasound', amount: 1500, quantity: 1, category: 'radiology' },
+      { _id: 'svc-018', name: 'Complete Blood Count', amount: 350, quantity: 1, category: 'lab' },
+      { _id: 'svc-019', name: 'Urine Routine', amount: 150, quantity: 1, category: 'lab' },
+      { _id: 'svc-020', name: 'Iron & Folic Acid', amount: 180, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 800,
+    discount: 200,
+    tax: 139,
+    totalAmount: 2919,
+    amountPaid: 2919,
+    balanceDue: 0,
+    status: 'paid',
+    payments: [
+      { _id: 'pay-004', method: 'upi', amount: 2919, transactionId: 'UPI2026012700004', upiId: 'kavita.j@gpay', paidAt: new Date(Date.now() - 15 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [
+      { email: 'kavita.j@email.com', sentAt: new Date(Date.now() - 10 * 60 * 1000), status: 'sent' }
+    ],
+    receiptNo: 'RCP-2026-00005',
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    paidAt: new Date(Date.now() - 15 * 60 * 1000),
+    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'bill-006',
+    billNo: 'BILL-2026-00006',
+    patientId: 'PT-2026-00015',
+    patientName: 'Anita Sharma',
+    queueToken: 'Q-2026-0015',
+    services: [
+      { _id: 'svc-021', name: 'General Consultation', amount: 500, quantity: 1, category: 'consultation' },
+      { _id: 'svc-022', name: 'Complete Blood Count', amount: 350, quantity: 1, category: 'lab' },
+      { _id: 'svc-023', name: 'Iron & Folic Acid', amount: 180, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 500,
+    discount: 50,
+    tax: 49,
+    totalAmount: 1029,
+    amountPaid: 1029,
+    balanceDue: 0,
+    status: 'paid',
+    payments: [
+      { _id: 'pay-005', method: 'cash', amount: 1029, transactionId: 'CASH2026012700005', paidAt: new Date(Date.now() - 45 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [],
+    receiptNo: 'RCP-2026-00006',
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    paidAt: new Date(Date.now() - 45 * 60 * 1000),
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000)
+  },
+  {
+    _id: 'bill-007',
+    billNo: 'BILL-2026-00007',
+    patientId: 'PT-2026-00020',
+    patientName: 'Rajesh Kumar',
+    queueToken: 'Q-2026-0016',
+    services: [
+      { _id: 'svc-024', name: 'Emergency Consultation', amount: 1000, quantity: 1, category: 'consultation' },
+      { _id: 'svc-025', name: 'ECG', amount: 300, quantity: 1, category: 'radiology' },
+      { _id: 'svc-026', name: 'Cardiac Enzymes (Troponin)', amount: 1200, quantity: 1, category: 'lab' },
+      { _id: 'svc-027', name: 'IV Medications', amount: 800, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 1000,
+    discount: 0,
+    tax: 165,
+    totalAmount: 3465,
+    amountPaid: 0,
+    balanceDue: 3465,
+    status: 'pending',
+    payments: [],
+    emailHistory: [],
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    createdAt: new Date(Date.now() - 30 * 60 * 1000)
+  },
+  {
+    _id: 'bill-008',
+    billNo: 'BILL-2026-00008',
+    patientId: 'PT-2026-00018',
+    patientName: 'Meena Devi',
+    queueToken: 'Q-2026-0017',
+    services: [
+      { _id: 'svc-028', name: 'Antenatal Consultation', amount: 800, quantity: 1, category: 'consultation' },
+      { _id: 'svc-029', name: 'Pregnancy Test (Beta hCG)', amount: 400, quantity: 1, category: 'lab' },
+      { _id: 'svc-030', name: 'Thyroid Profile', amount: 700, quantity: 1, category: 'lab' }
+    ],
+    consultationFee: 800,
+    discount: 100,
+    tax: 90,
+    totalAmount: 1890,
+    amountPaid: 1890,
+    balanceDue: 0,
+    status: 'paid',
+    payments: [
+      { _id: 'pay-006', method: 'upi', amount: 1890, transactionId: 'UPI2026012700006', upiId: 'meena.d@paytm', paidAt: new Date(Date.now() - 50 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [
+      { email: 'meena.d@email.com', sentAt: new Date(Date.now() - 48 * 60 * 1000), status: 'sent' }
+    ],
+    receiptNo: 'RCP-2026-00008',
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    paidAt: new Date(Date.now() - 50 * 60 * 1000),
+    createdAt: new Date(Date.now() - 90 * 60 * 1000)
+  },
+  {
+    _id: 'bill-009',
+    billNo: 'BILL-2026-00009',
+    patientId: 'PT-2026-00022',
+    patientName: 'Sanjay Patel',
+    queueToken: 'Q-2026-0018',
+    services: [
+      { _id: 'svc-031', name: 'Specialist Consultation', amount: 800, quantity: 1, category: 'consultation' },
+      { _id: 'svc-032', name: 'Lipid Profile', amount: 600, quantity: 1, category: 'lab' },
+      { _id: 'svc-033', name: 'HbA1c Test', amount: 450, quantity: 1, category: 'lab' },
+      { _id: 'svc-034', name: 'Medications (Branded)', amount: 500, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 800,
+    discount: 0,
+    tax: 118,
+    totalAmount: 2468,
+    amountPaid: 1500,
+    balanceDue: 968,
+    status: 'partial',
+    payments: [
+      { _id: 'pay-007', method: 'card', amount: 1500, transactionId: 'CRD2026012700007', cardLast4: '8901', paidAt: new Date(Date.now() - 35 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [],
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    createdAt: new Date(Date.now() - 70 * 60 * 1000)
+  },
+  {
+    _id: 'bill-010',
+    billNo: 'BILL-2026-00010',
+    patientId: 'PT-2026-00025',
+    patientName: 'Lakshmi Rao',
+    queueToken: 'Q-2026-0019',
+    services: [
+      { _id: 'svc-035', name: 'Follow-up Consultation', amount: 300, quantity: 1, category: 'consultation' },
+      { _id: 'svc-036', name: 'Blood Glucose Test', amount: 150, quantity: 1, category: 'lab' },
+      { _id: 'svc-037', name: 'Medications (Generic)', amount: 200, quantity: 1, category: 'pharmacy' }
+    ],
+    consultationFee: 300,
+    discount: 0,
+    tax: 33,
+    totalAmount: 683,
+    amountPaid: 683,
+    balanceDue: 0,
+    status: 'paid',
+    payments: [
+      { _id: 'pay-008', method: 'cash', amount: 683, transactionId: 'CASH2026012700008', paidAt: new Date(Date.now() - 20 * 60 * 1000), processedBy: 'demo-user-004', processedByName: 'Staff Amit Kumar' }
+    ],
+    emailHistory: [],
+    receiptNo: 'RCP-2026-00010',
+    facilityId: 'PHC-001',
+    createdBy: 'demo-user-004',
+    createdByName: 'Staff Amit Kumar',
+    paidAt: new Date(Date.now() - 20 * 60 * 1000),
+    createdAt: new Date(Date.now() - 40 * 60 * 1000)
+  }
+];
+
+// Demo Notifications/Emails
+const demoNotifications = [
+  {
+    _id: 'notif-001',
+    type: 'receipt',
+    recipientEmail: 'khan.m@email.com',
+    recipientName: 'Mohammed Khan',
+    subject: 'Payment Receipt - BILL-2026-00001',
+    content: 'Your payment of ₹1,680 has been received successfully.',
+    billId: 'bill-001',
+    status: 'sent',
+    sentAt: new Date(Date.now() - 25 * 60 * 1000),
+    facilityId: 'PHC-001'
+  },
+  {
+    _id: 'notif-002',
+    type: 'receipt',
+    recipientEmail: 'ravi.v@email.com',
+    recipientName: 'Ravi Verma',
+    subject: 'Payment Receipt - BILL-2026-00002',
+    content: 'Your payment of ₹1,732 has been received successfully.',
+    billId: 'bill-002',
+    status: 'sent',
+    sentAt: new Date(Date.now() - 115 * 60 * 1000),
+    facilityId: 'PHC-001'
+  },
+  {
+    _id: 'notif-003',
+    type: 'receipt',
+    recipientEmail: 'kavita.j@email.com',
+    recipientName: 'Kavita Joshi',
+    subject: 'Payment Receipt - BILL-2026-00005',
+    content: 'Your payment of ₹2,919 has been received successfully.',
+    billId: 'bill-005',
+    status: 'sent',
+    sentAt: new Date(Date.now() - 10 * 60 * 1000),
+    facilityId: 'PHC-001'
+  },
+  {
+    _id: 'notif-004',
+    type: 'appointment',
+    recipientEmail: 'sunita.d@email.com',
+    recipientName: 'Sunita Devi',
+    subject: 'Your Queue Status Update',
+    content: 'You are now being attended by Dr. Sarah Johnson.',
+    status: 'sent',
+    sentAt: new Date(Date.now() - 30 * 60 * 1000),
+    facilityId: 'PHC-001'
+  },
+  {
+    _id: 'notif-005',
+    type: 'reminder',
+    recipientEmail: 'priya.g@email.com',
+    recipientName: 'Priya Gupta',
+    subject: 'Payment Reminder - BILL-2026-00003',
+    content: 'You have a pending payment of ₹736. Please complete the payment at the billing counter.',
+    billId: 'bill-003',
+    status: 'sent',
+    sentAt: new Date(Date.now() - 5 * 60 * 1000),
+    facilityId: 'PHC-001'
+  }
+];
+
+// In-memory storage (mutable)
+let users = [...demoUsers];
+let patients = [...demoPatients];
+let assessments = [...demoAssessments];
+let queue = [...demoQueue];
+let billing = [...demoBilling];
+let notifications = [...demoNotifications];
+let chatMessages = [];
+
+
+// Check if MongoDB is connected
+export const isMongoConnected = () => {
+  try {
+    const mongoose = require('mongoose');
+    return mongoose.connection.readyState === 1;
+  } catch {
+    return false;
+  }
+};
+
+// Demo Data Store
+export const demoStore = {
+  // Users
+  users: {
+    findOne: (query) => {
+      if (query.email) {
+        return users.find(u => u.email === query.email) || null;
+      }
+      return null;
+    },
+    findById: (id) => users.find(u => u._id === id) || null,
+    findByEmail: (email) => users.find(u => u.email === email) || null,
+    create: (userData) => {
+      const newUser = { 
+        _id: `user-${Date.now()}`, 
+        ...userData, 
+        isActive: true,
+        assessmentsCount: 0,
+        createdAt: new Date() 
+      };
+      users.push(newUser);
+      return newUser;
+    },
+    findAll: () => users,
+    findByIdAndUpdate: (id, update) => {
+      const index = users.findIndex(u => u._id === id);
+      if (index === -1) return null;
+      users[index] = { ...users[index], ...update, updatedAt: new Date() };
+      return users[index];
+    },
+    delete: (id) => {
+      const index = users.findIndex(u => u._id === id);
+      if (index === -1) return false;
+      users.splice(index, 1);
+      return true;
+    }
+  },
+
+  // Patients
+  patients: {
+    findOne: (query) => {
+      if (query.patientId) return patients.find(p => p.patientId === query.patientId) || null;
+      if (query._id) return patients.find(p => p._id === query._id) || null;
+      return null;
+    },
+    findById: (id) => patients.find(p => p._id === id) || null,
+    create: (patientData) => {
+      const newPatient = { 
+        _id: `patient-${Date.now()}`, 
+        patientId: `PT-2026-${String(patients.length + 1).padStart(5, '0')}`,
+        ...patientData, 
+        createdAt: new Date() 
+      };
+      patients.push(newPatient);
+      return newPatient;
+    },
+    find: (query = {}) => {
+      let result = [...patients];
+      if (query.facilityId) result = result.filter(p => p.facilityId === query.facilityId);
+      return result;
+    },
+    countDocuments: (query = {}) => {
+      let result = [...patients];
+      if (query.facilityId) result = result.filter(p => p.facilityId === query.facilityId);
+      return result.length;
+    },
+    update: (id, data) => {
+      const index = patients.findIndex(p => p._id === id);
+      if (index === -1) return null;
+      patients[index] = { ...patients[index], ...data, updatedAt: new Date() };
+      return patients[index];
+    },
+    delete: (id) => {
+      const index = patients.findIndex(p => p._id === id);
+      if (index === -1) return false;
+      patients.splice(index, 1);
+      return true;
+    }
+  },
+
+  // Assessments
+  assessments: {
+    findById: (id) => assessments.find(a => a._id === id) || null,
+    create: (assessmentData) => {
+      const newAssessment = { _id: `assessment-${Date.now()}`, ...assessmentData, createdAt: new Date() };
+      assessments.push(newAssessment);
+      return newAssessment;
+    },
+    find: (query = {}) => {
+      let result = [...assessments];
+      if (query.facilityId) result = result.filter(a => a.facilityId === query.facilityId);
+      if (query.riskLevel) result = result.filter(a => a.riskLevel === query.riskLevel);
+      return result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    },
+    countDocuments: (query = {}) => {
+      let result = [...assessments];
+      if (query.facilityId) result = result.filter(a => a.facilityId === query.facilityId);
+      if (query.riskLevel) result = result.filter(a => a.riskLevel === query.riskLevel);
+      return result.length;
+    }
+  },
+
+  // Queue
+  queue: {
+    findOne: (query) => {
+      if (query.token) return queue.find(q => q.token === query.token) || null;
+      if (query._id) return queue.find(q => q._id === query._id) || null;
+      return null;
+    },
+    create: (queueData) => {
+      const token = `Q-2026-${String(queue.length + 1).padStart(4, '0')}`;
+      const newEntry = { _id: `queue-${Date.now()}`, token, ...queueData, createdAt: new Date(), addedAt: new Date() };
+      queue.push(newEntry);
+      return newEntry;
+    },
+    find: (query = {}) => {
+      let result = [...queue];
+      if (query.facilityId) result = result.filter(q => q.facilityId === query.facilityId);
+      if (query.status) {
+        if (query.status.$in) {
+          result = result.filter(q => query.status.$in.includes(q.status));
+        } else {
+          result = result.filter(q => q.status === query.status);
+        }
+      }
+      return result.sort((a, b) => b.urgencyScore - a.urgencyScore);
+    },
+    findByIdAndUpdate: (id, update) => {
+      const index = queue.findIndex(q => q._id === id);
+      if (index !== -1) {
+        queue[index] = { ...queue[index], ...update };
+        return queue[index];
+      }
+      return null;
+    },
+    countDocuments: (query = {}) => {
+      let result = [...queue];
+      if (query.facilityId) result = result.filter(q => q.facilityId === query.facilityId);
+      if (query.status) result = result.filter(q => q.status === query.status);
+      return result.length;
+    }
+  },
+
+  // Chat Messages
+  chatMessages: {
+    create: (messageData) => {
+      const newMessage = { _id: `chat-${Date.now()}`, ...messageData, createdAt: new Date() };
+      chatMessages.push(newMessage);
+      return newMessage;
+    },
+    find: (query = {}) => {
+      let result = [...chatMessages];
+      if (query.sessionId) result = result.filter(m => m.sessionId === query.sessionId);
+      return result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    },
+    deleteMany: (query = {}) => {
+      if (query.sessionId) {
+        chatMessages = chatMessages.filter(m => m.sessionId !== query.sessionId);
+      }
+      return { deletedCount: 1 };
+    }
+  },
+
+  // Billing
+  billing: {
+    findById: (id) => billing.find(b => b._id === id) || null,
+    findByBillNo: (billNo) => billing.find(b => b.billNo === billNo) || null,
+    create: (billData) => {
+      const billNo = `BILL-2026-${String(billing.length + 1).padStart(5, '0')}`;
+      const newBill = { 
+        _id: `bill-${Date.now()}`, 
+        billNo,
+        status: 'pending',
+        payments: [],
+        emailHistory: [],
+        amountPaid: 0,
+        ...billData, 
+        createdAt: new Date() 
+      };
+      billing.push(newBill);
+      return newBill;
+    },
+    find: (query = {}) => {
+      let result = [...billing];
+      if (query.facilityId) result = result.filter(b => b.facilityId === query.facilityId);
+      if (query.patientId) result = result.filter(b => b.patientId === query.patientId);
+      if (query.status) result = result.filter(b => b.status === query.status);
+      return result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    },
+    findByPatientId: (patientId) => billing.filter(b => b.patientId === patientId).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    update: (id, data) => {
+      const index = billing.findIndex(b => b._id === id);
+      if (index === -1) return null;
+      billing[index] = { ...billing[index], ...data, updatedAt: new Date() };
+      return billing[index];
+    },
+    addPayment: (id, paymentData) => {
+      const index = billing.findIndex(b => b._id === id);
+      if (index === -1) return null;
+      const payment = { _id: `pay-${Date.now()}`, ...paymentData, paidAt: new Date() };
+      billing[index].payments.push(payment);
+      billing[index].amountPaid = (billing[index].amountPaid || 0) + paymentData.amount;
+      billing[index].balanceDue = billing[index].totalAmount - billing[index].amountPaid;
+      if (billing[index].balanceDue <= 0) {
+        billing[index].status = 'paid';
+        billing[index].paidAt = new Date();
+        billing[index].receiptNo = `RCP-2026-${String(billing.filter(b => b.receiptNo).length + 1).padStart(5, '0')}`;
+      } else {
+        billing[index].status = 'partial';
+      }
+      return billing[index];
+    },
+    addEmailHistory: (id, emailData) => {
+      const index = billing.findIndex(b => b._id === id);
+      if (index === -1) return null;
+      billing[index].emailHistory.push({ ...emailData, sentAt: new Date() });
+      return billing[index];
+    },
+    countDocuments: (query = {}) => {
+      let result = [...billing];
+      if (query.facilityId) result = result.filter(b => b.facilityId === query.facilityId);
+      if (query.status) result = result.filter(b => b.status === query.status);
+      return result.length;
+    },
+    getStats: (facilityId) => {
+      const facilityBills = billing.filter(b => b.facilityId === facilityId);
+      const paidBills = facilityBills.filter(b => b.status === 'paid');
+      const pendingBills = facilityBills.filter(b => b.status === 'pending');
+      const partialBills = facilityBills.filter(b => b.status === 'partial');
+      
+      return {
+        totalBills: facilityBills.length,
+        paidBills: paidBills.length,
+        pendingBills: pendingBills.length,
+        partialBills: partialBills.length,
+        totalRevenue: paidBills.reduce((sum, b) => sum + b.totalAmount, 0),
+        pendingAmount: pendingBills.reduce((sum, b) => sum + b.balanceDue, 0) + partialBills.reduce((sum, b) => sum + b.balanceDue, 0),
+        todayRevenue: paidBills.filter(b => new Date(b.paidAt).toDateString() === new Date().toDateString()).reduce((sum, b) => sum + b.totalAmount, 0),
+        todayBills: facilityBills.filter(b => new Date(b.createdAt).toDateString() === new Date().toDateString()).length
+      };
+    }
+  },
+
+  // Notifications/Emails
+  notifications: {
+    findById: (id) => notifications.find(n => n._id === id) || null,
+    create: (notificationData) => {
+      const newNotification = { 
+        _id: `notif-${Date.now()}`, 
+        status: 'sent',
+        ...notificationData, 
+        sentAt: new Date(),
+        createdAt: new Date() 
+      };
+      notifications.push(newNotification);
+      return newNotification;
+    },
+    find: (query = {}) => {
+      let result = [...notifications];
+      if (query.facilityId) result = result.filter(n => n.facilityId === query.facilityId);
+      if (query.recipientEmail) result = result.filter(n => n.recipientEmail === query.recipientEmail);
+      if (query.type) result = result.filter(n => n.type === query.type);
+      if (query.billId) result = result.filter(n => n.billId === query.billId);
+      return result.sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+    },
+    findByBillId: (billId) => notifications.filter(n => n.billId === billId).sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt)),
+    countDocuments: (query = {}) => {
+      let result = [...notifications];
+      if (query.facilityId) result = result.filter(n => n.facilityId === query.facilityId);
+      return result.length;
+    }
+  },
+
+  // Analytics helpers
+  getAnalytics: (facilityId) => {
+    const facilityAssessments = assessments.filter(a => a.facilityId === facilityId);
+    const facilityQueue = queue.filter(q => q.facilityId === facilityId);
+    const facilityPatients = patients.filter(p => p.facilityId === facilityId);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const thisWeek = new Date(today);
+    thisWeek.setDate(thisWeek.getDate() - 7);
+    
+    const thisMonth = new Date(today);
+    thisMonth.setDate(1);
+    
+    const todayAssessments = facilityAssessments.filter(a => new Date(a.createdAt) >= today);
+    const weekAssessments = facilityAssessments.filter(a => new Date(a.createdAt) >= thisWeek);
+    const waitingQueue = facilityQueue.filter(q => q.status === 'waiting');
+    const completedQueue = facilityQueue.filter(q => q.status === 'completed');
+    
+    // Calculate avg wait time from completed queue entries
+    const avgWaitTime = completedQueue.length > 0 
+      ? Math.round(completedQueue.reduce((sum, q) => sum + (q.waitTime || 12), 0) / completedQueue.length)
+      : 12;
+    
+    return {
+      overview: {
+        patientsToday: facilityPatients.length,
+        assessmentsToday: todayAssessments.length || facilityAssessments.length,
+        assessmentsWeek: weekAssessments.length || facilityAssessments.length,
+        assessmentsMonth: facilityAssessments.length,
+        criticalCases: facilityAssessments.filter(a => a.riskLevel === 'critical').length,
+        highRiskCases: facilityAssessments.filter(a => a.riskLevel === 'high').length,
+        queueLength: waitingQueue.length,
+        avgWaitTime: avgWaitTime
+      },
+      riskDistribution: {
+        critical: facilityAssessments.filter(a => a.riskLevel === 'critical').length,
+        high: facilityAssessments.filter(a => a.riskLevel === 'high').length,
+        medium: facilityAssessments.filter(a => a.riskLevel === 'medium').length,
+        low: facilityAssessments.filter(a => a.riskLevel === 'low').length
+      },
+      queueStatus: {
+        waiting: waitingQueue.length,
+        inConsultation: facilityQueue.filter(q => q.status === 'in-consultation').length,
+        completed: completedQueue.length
+      },
+      recentAssessments: facilityAssessments.slice(0, 5),
+      hourlyTrends: [
+        { _id: 8, count: 3 },
+        { _id: 9, count: 5 },
+        { _id: 10, count: 7 },
+        { _id: 11, count: 4 },
+        { _id: 12, count: 2 },
+        { _id: 14, count: 6 },
+        { _id: 15, count: 8 },
+        { _id: 16, count: 5 },
+        { _id: 17, count: 3 }
+      ]
+    };
+  },
+
+  // Verify password for demo users
+  verifyPassword: async (email, password) => {
+    const user = users.find(u => u.email === email);
+    if (!user) return null;
+    
+    // Simple password verification for demo
+    const passwords = {
+      'demo@healthtriage.ai': 'demo123',
+      'doctor@healthtriage.ai': 'doctor123',
+      'nurse@healthtriage.ai': 'nurse123',
+      'staff@healthtriage.ai': 'staff123'
+    };
+    
+    if (passwords[email] === password) {
+      return user;
+    }
+    
+    // Also try bcrypt comparison
+    try {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) return user;
+    } catch (e) {
+      // Fallback to direct comparison for demo
+    }
+    
+    return null;
+  },
+
+  // Reset to initial state
+  reset: () => {
+    users = [...demoUsers];
+    patients = [...demoPatients];
+    assessments = [...demoAssessments];
+    queue = [...demoQueue];
+    billing = [...demoBilling];
+    notifications = [...demoNotifications];
+    chatMessages = [];
+  }
+};
+
+export default demoStore;

@@ -1,8 +1,24 @@
+# Healthcare Risk Triage AI - Backend Requirements
+# ================================================
+# Python ML Service Dependencies
+
+# Core Framework
 fastapi>=0.104.0
-uvicorn>=0.24.0
+uvicorn[standard]>=0.24.0
 pydantic>=2.0.0
+
+# Data Processing & ML
 numpy>=1.24.0
 pandas>=2.0.0
 scikit-learn>=1.3.0
 joblib>=1.3.0
+
+# File Handling
 python-multipart>=0.0.6
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# HTTP Client (for connecting to Node.js server if needed)
+httpx>=0.25.0
+

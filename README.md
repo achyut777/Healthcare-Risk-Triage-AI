@@ -1,38 +1,18 @@
 # Healthcare Risk Triage AI
 
-## 🏥 Clinical Decision Support System for Primary Healthcare Centers
+## 🏥 AI-Powered Clinical Decision Support System (CDSS)
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://react.dev)
+[![MongoDB](https://img.shields.io/badge/MongoDB-6+-green.svg)](https://mongodb.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-teal.svg)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Hackathon](https://img.shields.io/badge/Smart%20Healthcare-MedTech%20Hackathon-purple.svg)](#hackathon-alignment)
-[![ML Accuracy](https://img.shields.io/badge/ML%20Accuracy-99.5%25-success.svg)](#technical-implementation)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Hackathon%20Ready-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Version-2.0-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Type-CDSS-blue?style=for-the-badge" />
 </p>
-
----
-
-## 🚀 Quick Start
-
-```bash
-# Clone and setup
-cd healthcare-risk-triage-ai
-
-# Install Python dependencies
-pip install -r backend/requirements.txt
-
-# Start the backend API
-cd backend && python app.py
-
-# Open frontend (in new terminal)
-# Open frontend/index.html in browser
-```
-
-**Demo Credentials:**
-- **Admin:** `admin` / `admin123`
-- **Staff:** `nurse.priya` / `priya@phc`
 
 ---
 
@@ -59,438 +39,336 @@ cd backend && python app.py
 
 ---
 
-## 📋 Table of Contents
+## 🌟 Features
 
-1. [Problem Statement](#problem-statement)
-2. [Why Existing Solutions Fail](#why-existing-solutions-fail)
-3. [Our Solution](#our-solution)
-4. [System Architecture](#system-architecture)
-5. [Technical Implementation](#technical-implementation)
-6. [Dataset & Features](#dataset--features)
-7. [How to Run](#how-to-run)
-8. [API Documentation](#api-documentation)
-9. [Demo Flow](#demo-flow)
-10. [Ethical Considerations](#ethical-considerations)
-11. [Hackathon Alignment](#hackathon-alignment)
-12. [Team & Acknowledgments](#team--acknowledgments)
+### Core Features
+- **🤖 AI Risk Assessment** - Intelligent patient risk scoring based on vital signs
+- **💬 Healthcare Chatbot** - AI assistant for healthcare-related questions only
+- **📋 Queue Management** - Smart patient queue with priority-based ordering
+- **📊 Real-time Analytics** - Dashboard with charts and insights
+- **🌐 Patient Portal** - Public portal for patients to check queue status
+- **🔐 Role-Based Access** - Secure authentication for staff and doctors
+- **📱 Responsive Design** - Works on desktop and mobile devices
+- **🌙 Dark Mode** - Full dark mode support across all pages
 
----
+### Clinical Features (Evidence-Based)
+- **🩺 NEWS2 Scoring** - National Early Warning Score 2 (Royal College of Physicians)
+  - Respiratory rate, SpO2, temperature, BP, heart rate scoring
+  - Risk levels: Low (0-4), Medium (5-6), High (7+)
+- **⚠️ qSOFA Sepsis Screening** - Quick Sequential Organ Failure Assessment
+  - Checks: RR≥22, SBP≤100, altered mental status
+  - Positive if ≥2 criteria met
+- **👶 Pediatric Support** - Age-specific vital sign ranges
+  - Infant (0-1yr), Toddler (1-3yr), Preschool (3-6yr)
+  - School age (6-12yr), Adolescent (12-18yr)
+- **🚨 Critical Alerts** - Automatic flagging of life-threatening values
+  - SpO2 < 88%, BP < 80 or > 200, HR < 40 or > 150
+  - Temperature > 40.5°C, Respiratory rate < 8 or > 35
+- **📝 Symptom Analysis** - 23+ high-risk symptom keyword detection
+  - Chest pain, difficulty breathing, stroke symptoms
+  - Severe pain, bleeding, loss of consciousness
 
-## 🎯 Problem Statement
+### Security & Compliance
+- **📋 Audit Logging** - HIPAA-compliant activity tracking
+- **🔒 Rate Limiting** - Protection against abuse
+- **🛡️ Role-Based Authorization** - Granular access control
 
-### The Challenge
-
-Rural and semi-urban **Primary Healthcare Centers (PHCs)** in India face critical challenges:
-
-| Problem | Impact |
-|---------|--------|
-| **Shortage of trained medical professionals** | 1 doctor per 10,000+ patients in rural areas |
-| **No digital triage tools** | Patients seen on first-come basis, not urgency |
-| **Delayed treatment for critical cases** | High-risk patients wait alongside routine cases |
-| **Overwhelmed healthcare workers** | Manual assessment of every patient is exhausting |
-| **Lack of standardized prioritization** | Inconsistent patient handling across centers |
-
-### Real-World Scenario
-
-> A 65-year-old patient with low oxygen saturation (SpO2: 88%) waits 2 hours in queue while stable patients with minor complaints are seen first. This delay in critical cases costs lives.
-
----
-
-## ❌ Why Existing Solutions Fail
-
-| Existing Approach | Why It Fails |
-|-------------------|--------------|
-| **Paper-based triage** | Inconsistent, depends on individual worker's judgment |
-| **Hospital EMR systems** | Too complex, expensive, require infrastructure PHCs lack |
-| **Generic health apps** | Focus on diagnosis (unsafe), not triage prioritization |
-| **AI diagnostic tools** | Legally problematic, replace rather than assist doctors |
-| **Symptom checkers** | Patient-facing, not designed for healthcare worker workflow |
-
-### Key Gap Identified
-
-There is **no simple, ethical, healthcare-worker-focused tool** that:
-- Works with basic PHC equipment
-- Provides transparent risk indicators
-- Assists (not replaces) medical judgment
-- Is legally and ethically safe
+### Internationalization
+- **🌍 Multi-language Support** - English, Hindi, Spanish, French
+- **🕐 Timezone Support** - IST, EST, GMT, PST
+- **📅 Date Format Options** - DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD
 
 ---
 
-## ✅ Our Solution
-
-### Healthcare Risk Triage AI
-
-A **Clinical Decision Support System (CDSS)** that:
-
-1. **Accepts non-invasive vital signs** measurable at any PHC
-2. **Calculates risk indicators** using transparent, auditable rules + ML
-3. **Outputs prioritization recommendations** (not diagnoses)
-4. **Empowers healthcare workers** to make informed queue decisions
-
-### Core Principle
-
-> **"Decision SUPPORT, not Decision MAKING"**
-
-The system provides information to help healthcare workers prioritize patients. It never makes medical decisions.
-
-### Key Features
-
-| Feature | Description |
-|---------|-------------|
-| **Risk Level Classification** | LOW / MEDIUM / HIGH (for queue priority) |
-| **Urgency Score** | 0-100 scale for fine-grained prioritization |
-| **Explainability** | Shows which vitals contributed to the risk level |
-| **Transparent Logic** | Rule-based + ML hybrid for auditability |
-| **Offline-Ready** | Lightweight, works on basic hardware |
-| **Ethical by Design** | Disclaimers at every level, no diagnosis claims |
-
----
-
-## 🏗️ System Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    HEALTHCARE WORKER INTERFACE                   │
-│                    (Web-based Dashboard)                         │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                         BACKEND API                              │
-│                    (FastAPI + Python)                            │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐   │
-│  │   Input      │  │    Data      │  │    Response          │   │
-│  │ Validation   │──│ Preprocessing│──│    Formatter         │   │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘   │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    ML RISK ASSESSMENT ENGINE                     │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │                                                          │   │
-│  │  ┌────────────────┐    ┌────────────────┐               │   │
-│  │  │  Rule-Based    │    │  Random Forest │               │   │
-│  │  │  Clinical      │ +  │  Classifier    │               │   │
-│  │  │  Logic (60%)   │    │  (40%)         │               │   │
-│  │  └────────────────┘    └────────────────┘               │   │
-│  │              │                 │                         │   │
-│  │              └────────┬────────┘                         │   │
-│  │                       ▼                                  │   │
-│  │            ┌──────────────────┐                         │   │
-│  │            │  Risk Level +    │                         │   │
-│  │            │  Urgency Score   │                         │   │
-│  │            │  + Explanations  │                         │   │
-│  │            └──────────────────┘                         │   │
-│  │                                                          │   │
-│  └──────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      OUTPUT TO HEALTHCARE WORKER                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
-│  │ Risk Level  │  │  Urgency    │  │    Recommendations      │  │
-│  │ LOW/MED/HI  │  │  0-100      │  │    + Contributing       │  │
-│  │             │  │             │  │      Factors            │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
-│                                                                  │
-│  ⚠️ MANDATORY DISCLAIMER SHOWN WITH EVERY RESULT                │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Data Flow (60-Second Explanation)
-
-1. **Healthcare worker** enters patient vitals (heart rate, BP, SpO2, etc.)
-2. **Backend validates** input ranges for clinical plausibility
-3. **Risk engine** calculates deviation from normal ranges (rule-based)
-4. **ML model** provides additional classification confidence
-5. **Combined score** produces risk level and urgency score
-6. **Explainable output** shows which factors contributed most
-7. **Recommendations** suggest queue priority (not treatment)
-8. **Disclaimer** always accompanies every result
-
----
-
-## 🛠️ Technical Implementation
-
-### Tech Stack
-
-| Layer | Technology | Justification |
-|-------|------------|---------------|
-| **Frontend** | HTML5 + Tailwind CSS | Lightweight, works on any browser, no build needed |
-| **Backend** | FastAPI (Python) | Fast, type-safe, auto-documentation, async-ready |
-| **ML Engine** | Scikit-learn (Random Forest) | Interpretable, robust, no GPU needed |
-| **Deployment** | Uvicorn | Production-grade ASGI server |
-
-### Why These Choices?
-
-1. **No heavy frameworks** → Runs on PHC computers
-2. **No external dependencies at runtime** → Offline-capable
-3. **Interpretable ML** → Can explain decisions to doctors
-4. **Standard Python** → Easy to maintain and audit
-
-### Project Structure
-
-```
-healthcare-risk-triage-ai/
-├── backend/
-│   ├── app.py              # FastAPI application
-│   └── requirements.txt    # Python dependencies
-├── model/
-│   ├── risk_engine.py      # Core ML + rule-based engine
-│   └── trained_model.joblib # Saved model (generated)
-├── frontend/
-│   └── index.html          # Healthcare worker interface
-├── dataset/
-│   └── sample_data.csv     # Demo data (synthetic)
-├── docs/
-│   ├── architecture.md     # Technical documentation
-│   ├── ethics.md           # Ethical considerations
-│   └── presentation/       # Slides and diagrams
-├── tests/
-│   └── test_risk_engine.py # Unit tests
-├── README.md
-├── LICENSE
-└── .gitignore
-```
-
----
-
-## 📊 Dataset & Features
-
-### Features Used (All Non-Invasive, PHC-Available)
-
-| Feature | Unit | Normal Range | How Measured |
-|---------|------|--------------|--------------|
-| Age | years | - | Patient record |
-| Gender | binary | - | Patient record |
-| Heart Rate | bpm | 60-100 | Pulse oximeter / Manual |
-| Systolic BP | mmHg | 90-140 | BP monitor |
-| Diastolic BP | mmHg | 60-90 | BP monitor |
-| Temperature | °C | 36.1-37.2 | Thermometer |
-| SpO2 | % | 95-100 | Pulse oximeter |
-| Respiratory Rate | /min | 12-20 | Manual count |
-| Symptom Duration | days | - | Patient history |
-| Pain Level | 0-10 | - | Patient self-report |
-
-### Why These Features?
-
-1. **Non-invasive** → No blood tests required
-2. **Available at every PHC** → Standard equipment
-3. **Quick to measure** → <5 minutes per patient
-4. **Clinically relevant** → Used in standard triage protocols
-5. **Ethical** → No sensitive genetic/diagnostic data
-
-### Dataset Disclaimer
-
-> ⚠️ **For hackathon demonstration, synthetic data is used.**
-> 
-> In production deployment, real clinical data would require:
-> - IRB approval
-> - Patient consent
-> - Data anonymization
-> - HIPAA/equivalent compliance
-
----
-
-## 🚀 How to Run
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package manager)
-- Modern web browser
+- **Node.js 18+** and npm
+- **MongoDB** (local or Atlas)
+- **Python 3.10+** (for ML service, optional)
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/achyut777/healthcare-risk-triage-ai.git
-cd healthcare-risk-triage-ai
+# 1. Clone the repository
+git clone https://github.com/yourusername/Healthcare-Risk-Triage-AI.git
+cd Healthcare-Risk-Triage-AI
 
-# Create virtual environment
-python -m venv venv
+# 2. Install all dependencies
+npm run install:all
 
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
+# 3. Configure environment
+cp server/.env.example server/.env
+# Edit server/.env with your MongoDB URI and other settings
 
-# Install dependencies
-pip install -r backend/requirements.txt
+# 4. Seed the database with demo data
+npm run seed
+
+# 5. Start development servers
+npm run dev
 ```
 
-### Running the Backend
+This starts:
+- **Backend API**: http://localhost:5000
+- **React Frontend**: http://localhost:3000
 
-```bash
-# From project root
-cd backend
-python app.py
+### Demo Credentials
 
-# Or with uvicorn directly
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | `demo@healthtriage.ai` | `demo123` |
+| **Doctor** | `doctor@healthtriage.ai` | `doctor123` |
+| **Nurse** | `nurse@healthtriage.ai` | `nurse123` |
+| **Staff** | `staff@healthtriage.ai` | `staff123` |
+
+---
+
+## 📁 Project Structure
+
 ```
-
-The API will be available at: `http://localhost:8000`
-
-### Running the Frontend
-
-Simply open `frontend/index.html` in any web browser.
-
-Or use Python's built-in server:
-```bash
-cd frontend
-python -m http.server 3000
-```
-
-Then visit: `http://localhost:3000`
-
-### Running Tests
-
-```bash
-# From project root
-python -m pytest tests/ -v
+healthcare-risk-triage-ai/
+├── client/                    # React Frontend (Vite + Tailwind)
+│   ├── src/
+│   │   ├── components/        # Reusable UI components
+│   │   ├── pages/             # Page components
+│   │   ├── services/          # API service layer
+│   │   └── stores/            # Zustand state management
+│   └── package.json
+│
+├── server/                    # Node.js Backend (Express + MongoDB)
+│   ├── config/                # Configuration files
+│   ├── middleware/            # Express middleware
+│   ├── models/                # Mongoose models
+│   ├── routes/                # API routes
+│   ├── services/              # Business logic
+│   ├── scripts/               # Database seeding
+│   └── package.json
+│
+├── backend/                   # Python ML Service (FastAPI)
+│   ├── app.py                 # FastAPI application
+│   ├── config.py              # Configuration
+│   └── requirements.txt       # Python dependencies
+│
+├── model/                     # ML Risk Engine
+│   └── risk_engine.py         # Core risk assessment algorithm
+│
+├── tests/                     # Python tests
+│   └── test_risk_engine.py    # Risk engine unit tests
+│
+├── dataset/                   # Sample data
+│   └── sample_data.csv        # Demo dataset
+│
+├── docs/                      # Documentation
+│   ├── architecture.md        # System architecture
+│   └── ethics.md              # Ethical considerations
+│
+├── package.json               # Root package.json
+├── pyproject.toml             # Python project config
+└── README.md
 ```
 
 ---
 
-## 📡 API Documentation
+## 🛠️ Available Scripts
 
-### Endpoints
+### NPM Scripts (Root)
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start both server and client in development mode |
+| `npm run server` | Start Node.js server only |
+| `npm run client` | Start React client only |
+| `npm run install:all` | Install all dependencies (root + server + client) |
+| `npm run build` | Build React client for production |
+| `npm run seed` | Seed MongoDB with demo data |
+| `npm run test:python` | Run Python ML model tests |
+| `npm run ml:start` | Start Python ML service |
+
+### VS Code Tasks
+
+Press `Ctrl+Shift+P` → "Tasks: Run Task" to access:
+- 🚀 Start Full Stack (Dev)
+- 🌐 Start Node.js Server
+- ⚛️ Start React Client
+- 🤖 Start ML Service (FastAPI)
+- 🧪 Run Python Tests
+- 📦 Install All Dependencies
+
+---
+
+## 🏗️ Architecture
+
+### System Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     React Frontend (Vite)                       │
+│                    http://localhost:3000                        │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Node.js Backend (Express)                      │
+│                    http://localhost:5000                        │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │   Auth API   │  │  Queue API   │  │  Analytics API       │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+              ┌──────────────┴──────────────┐
+              ▼                              ▼
+┌─────────────────────────┐    ┌─────────────────────────────────┐
+│       MongoDB           │    │   Python ML Service (FastAPI)   │
+│   (User/Patient Data)   │    │      http://localhost:8000      │
+└─────────────────────────┘    │  ┌───────────────────────────┐  │
+                               │  │   Risk Assessment Engine  │  │
+                               │  │   (Random Forest + Rules) │  │
+                               │  └───────────────────────────┘  │
+                               └─────────────────────────────────┘
+```
+
+### Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | React 18 + Vite + Tailwind CSS | Modern, fast UI |
+| **Backend** | Express.js + MongoDB + Mongoose | REST API + Data persistence |
+| **ML Service** | FastAPI + Scikit-learn | Risk assessment engine |
+| **State Management** | Zustand | Lightweight React state |
+| **Authentication** | JWT + bcrypt | Secure user auth |
+| **Charts** | Chart.js + react-chartjs-2 | Analytics visualization |
+
+---
+
+## 📡 API Endpoints
+
+### Node.js API (Port 5000)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | API information and disclaimer |
-| GET | `/health` | System health check |
-| POST | `/assess` | Submit patient vitals for risk assessment |
-| GET | `/model-info` | Model transparency information |
-| GET | `/vital-ranges` | Reference vital sign ranges |
+| POST | `/api/auth/login` | User authentication |
+| POST | `/api/auth/register` | User registration |
+| POST | `/api/assessments` | Create risk assessment |
+| GET | `/api/queue/status` | Get queue status |
+| POST | `/api/queue/add` | Add patient to queue |
+| GET | `/api/analytics/dashboard` | Dashboard statistics |
+| POST | `/api/chatbot/message` | Healthcare chatbot |
 
-### Sample Request
+### Python ML API (Port 8000)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | API info and disclaimer |
+| GET | `/health` | Health check |
+| POST | `/assess` | Risk assessment |
+| GET | `/model-info` | Model transparency info |
+| GET | `/vital-ranges` | Clinical reference ranges |
+| GET | `/docs` | Swagger documentation |
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables (server/.env)
+
+```env
+# Server
+PORT=5000
+NODE_ENV=development
+
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/healthtriage
+
+# JWT
+JWT_SECRET=your-secret-key-here
+JWT_EXPIRE=7d
+
+# Client URL (CORS)
+CLIENT_URL=http://localhost:3000
+
+# OpenAI (for chatbot)
+OPENAI_API_KEY=your-openai-key
+
+# Python ML Service
+ML_SERVICE_URL=http://localhost:8000
+```
+
+---
+
+## 🧪 Testing
+
+### Python Tests
 
 ```bash
-curl -X POST "http://localhost:8000/assess" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "age": 65,
-    "gender": 1,
-    "heart_rate": 95,
-    "bp_systolic": 155,
-    "bp_diastolic": 95,
-    "temperature": 37.8,
-    "oxygen_saturation": 94,
-    "respiratory_rate": 22,
-    "symptom_duration_days": 2,
-    "pain_level": 6
-  }'
+# Run all tests
+npm run test:python
+
+# With coverage
+cd backend && python -m pytest ../tests --cov=../model --cov-report=html -v
 ```
 
-### Sample Response
+### Test Coverage
 
-```json
-{
-  "success": true,
-  "timestamp": "2026-01-23T10:30:00",
-  "patient_id": null,
-  "risk_level": "MEDIUM",
-  "urgency_score": 45,
-  "confidence": 0.78,
-  "contributing_factors": {
-    "bp_systolic": 0.35,
-    "oxygen_saturation": 0.42,
-    "age_risk": 0.30
-  },
-  "recommendations": [
-    "🟡 ELEVATED PRIORITY: Patient should be seen within 30 minutes",
-    "Document vital signs and prepare patient history",
-    "⚠️ Flag: Oxygen saturation below normal - verify reading and monitor"
-  ],
-  "disclaimer": "⚠️ IMPORTANT: This is a preliminary risk assessment..."
-}
+The test suite covers:
+- Input validation
+- Risk level calculation
+- Edge cases for vital signs
+- Model training and prediction
+- API endpoint responses
+
+---
+
+## 📊 Risk Assessment Algorithm
+
+### Features Used (Non-Invasive)
+
+| Feature | Unit | Normal Range |
+|---------|------|--------------|
+| Age | years | 0-120 |
+| Heart Rate | bpm | 60-100 |
+| Systolic BP | mmHg | 90-140 |
+| Diastolic BP | mmHg | 60-90 |
+| Temperature | °C | 36.1-37.2 |
+| SpO2 | % | 95-100 |
+| Respiratory Rate | /min | 12-20 |
+| Symptom Duration | days | 0-365 |
+| Pain Level | 0-10 | 0-10 |
+
+### Risk Calculation
+
+```
+Risk Score = 60% × Rule-Based Score + 40% × ML Prediction
+
+Rule-Based: Checks vital signs against clinical thresholds
+ML Model: Random Forest trained on synthetic clinical data
+
+Output:
+- Risk Level: LOW / MEDIUM / HIGH
+- Urgency Score: 0-100
+- Contributing Factors: Which vitals are abnormal
+- Recommendations: Queue priority suggestions
 ```
 
-### Interactive Docs
+---
 
-Visit `http://localhost:8000/docs` for Swagger UI documentation.
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-## 🎬 Demo Flow
+## 👥 Team
 
-### For Hackathon Judges
-
-1. **Start Backend** → `python backend/app.py`
-2. **Open Frontend** → `frontend/index.html`
-3. **Demo Scenario 1: High Risk Patient**
-   - Age: 70, SpO2: 88%, BP: 180/110
-   - Shows HIGH risk, urgency 75+
-4. **Demo Scenario 2: Low Risk Patient**
-   - Age: 30, All vitals normal
-   - Shows LOW risk, urgency <20
-5. **Highlight Explainability** → Show contributing factors
-6. **Highlight Disclaimer** → Always visible, ethically safe
-
----
-
-## ⚖️ Ethical Considerations
-
-### What We Did Right
-
-| Ethical Aspect | Our Implementation |
-|----------------|-------------------|
-| **No Diagnosis** | System only provides risk INDICATORS |
-| **Transparency** | Explainable factors shown for every result |
-| **Human-in-Loop** | All results require doctor validation |
-| **Disclaimers** | Present at UI, API, code, and documentation level |
-| **Data Ethics** | Only non-invasive, PHC-available features |
-| **Bias Mitigation** | Class-balanced training, cross-validation |
-
-### What This System Avoids
-
-- ❌ Claiming to detect specific diseases
-- ❌ Recommending treatments
-- ❌ Replacing clinical examination
-- ❌ Providing patient-facing medical advice
-- ❌ Using invasive or sensitive data
-
----
-
-## 🏆 Hackathon Alignment
-
-### Smart Healthcare & MedTech Theme Fit
-
-| Criterion | How We Address It |
-|-----------|-------------------|
-| **Innovation** | Ethical CDSS approach, not diagnosis |
-| **Technical Feasibility** | Works on basic PHC hardware |
-| **Real-World Relevance** | Solves actual rural healthcare gap |
-| **Scalability** | Lightweight, offline-capable |
-| **Ethical Compliance** | Full disclaimer framework |
-
-### Unique Differentiators
-
-1. **"Support, not Replace"** philosophy
-2. **60% rule-based + 40% ML** hybrid for transparency
-3. **Mandatory disclaimers** embedded at every level
-4. **Healthcare worker focus**, not patient-facing
-
----
-
-## 👥 Team & Acknowledgments
-
-### Team
-- Leader :- Shiv Jani
-- Members:
-- Achyut Hadavani
-- Rachana Chauhan 
-- Harshita Gupta
-
-### Acknowledgments
-- WHO vital sign reference guidelines
-- National Health Mission guidelines
-- Open-source community
+- **Leader:** Shiv Jani
+- **Members:**
+  - Achyut Hadavani
+  - Rachana Chauhan
+  - Harshita Gupta
 
 ---
 
@@ -498,6 +376,17 @@ Visit `http://localhost:8000/docs` for Swagger UI documentation.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+---
 
+## 🙏 Acknowledgments
 
-> **Remember:** This system assists healthcare workers in prioritization decisions. It does NOT diagnose diseases or replace medical professionals. Always consult qualified healthcare providers for medical advice.
+- WHO vital sign reference guidelines
+- National Health Mission guidelines
+- Open-source community
+- FastAPI and Scikit-learn teams
+
+---
+
+<p align="center">
+  <strong>⚠️ Remember: This system assists healthcare workers in prioritization decisions. It does NOT diagnose diseases or replace medical professionals. Always consult qualified healthcare providers for medical advice.</strong>
+</p>

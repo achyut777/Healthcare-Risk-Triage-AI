@@ -6,6 +6,46 @@
 
 This document provides detailed technical documentation for the Healthcare Risk Triage AI system, a Clinical Decision Support System (CDSS) for patient prioritization at Primary Healthcare Centers.
 
+### Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|----------|
+| **Frontend** | React 18 + Vite + Tailwind CSS | Modern, fast user interface |
+| **Backend API** | Express.js + MongoDB + Mongoose | REST API + Data persistence |
+| **ML Service** | FastAPI + Scikit-learn | Risk assessment engine |
+| **State Management** | Zustand | Lightweight React state |
+| **Authentication** | JWT + bcrypt | Secure user auth |
+| **Charts** | Chart.js + react-chartjs-2 | Analytics visualization |
+
+### System Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     React Frontend (Vite)                       │
+│                    http://localhost:3000                        │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Node.js Backend (Express)                      │
+│                    http://localhost:5000                        │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │   Auth API   │  │  Queue API   │  │  Analytics API       │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+              ┌──────────────┴──────────────┐
+              ▼                              ▼
+┌─────────────────────────┐    ┌─────────────────────────────────┐
+│       MongoDB           │    │   Python ML Service (FastAPI)   │
+│   (User/Patient Data)   │    │      http://localhost:8000      │
+└─────────────────────────┘    │  ┌───────────────────────────┐  │
+                               │  │   Risk Assessment Engine  │  │
+                               │  │   (Random Forest + Rules) │  │
+                               │  └───────────────────────────┘  │
+                               └─────────────────────────────────┘
+```
+
 ---
 
 ## Core Components
@@ -43,24 +83,38 @@ Urgency Score Calculation:
 | Misses patterns | Black-box concerns | Transparent + adaptive |
 | No learning | Requires large data | Works with limited data |
 
-### 2. Backend API (`backend/app.py`)
+### 2. Node.js Backend API (`server/`)
 
-FastAPI-based REST API with:
+Express.js-based REST API with:
+
+- **MongoDB Integration**: Mongoose ODM for data persistence
+- **JWT Authentication**: Secure user authentication
+- **Role-Based Access**: Admin, Doctor, Nurse, Staff roles
+- **Rate Limiting**: Protection against abuse
+- **Validation Middleware**: Input sanitization and validation
+- **Queue Management**: Patient queue with priority ordering
+- **Healthcare Chatbot**: OpenAI-powered assistant (healthcare-only)
+
+### 3. Python ML Service (`backend/app.py`)
+
+FastAPI-based ML API with:
 
 - **Input Validation**: Pydantic models ensure data integrity
 - **Type Safety**: All inputs/outputs are strongly typed
 - **Auto-documentation**: Swagger UI at `/docs`
-- **Error Handling**: Graceful degradation with informative errors
+- **Risk Engine**: Rule-based + ML hybrid assessment
 - **CORS Support**: Configurable for production deployment
 
-### 3. Frontend Interface (`frontend/index.html`)
+### 4. React Frontend (`client/`)
 
-Lightweight, single-file HTML with:
-- Tailwind CSS for styling (CDN-loaded)
-- Vanilla JavaScript (no frameworks needed)
-- Responsive design for tablets/desktops
-- Clear visual hierarchy for risk levels
-- Prominent disclaimers
+Modern React 18 application with:
+- **Vite**: Fast development and build tool
+- **Tailwind CSS**: Utility-first styling
+- **Zustand**: Lightweight state management
+- **React Router**: Client-side routing
+- **Chart.js**: Analytics visualizations
+- **Responsive Design**: Mobile and desktop support
+- **Protected Routes**: Authentication-based access control
 
 ---
 

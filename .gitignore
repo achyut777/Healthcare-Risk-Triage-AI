@@ -1,3 +1,11 @@
+# ================================
+# Healthcare Risk Triage AI
+# ================================
+
+# ================================
+# Python
+# ================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -48,36 +56,13 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
 
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
+# Virtual environments
 .env
 .venv
 env/
@@ -86,40 +71,94 @@ ENV/
 env.bak/
 venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
 # mypy
 .mypy_cache/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Project specific
+# ML Model files (don't commit trained models)
 *.joblib
 trained_model.joblib
 *.pkl
 *.pickle
+*.h5
+*.pt
+*.pth
 
+# ================================
+# Node.js
+# ================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# ================================
+# IDE & Editors
+# ================================
+
+.vscode/
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# ================================
+# OS Files
+# ================================
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ================================
+# Environment & Secrets
+# ================================
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+!server/.env.example
+
+# ================================
 # Logs
+# ================================
+
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Local configuration
-.env.local
-.env.*.local
+# ================================
+# Testing
+# ================================
+
+coverage/
+.nyc_output/
+
+# ================================
+# Misc
+# ================================
+
+*.tmp
+*.temp
+.cache/

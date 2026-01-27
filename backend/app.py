@@ -151,6 +151,15 @@ class RiskAssessmentResponse(BaseModel):
     urgency_score: int = Field(..., ge=0, le=100, description="Urgency score (0-100)")
     confidence: float = Field(..., ge=0, le=1, description="Model confidence")
     
+    # Clinical Scoring Systems
+    news2_score: int = Field(default=0, ge=0, le=20, description="NEWS2 Early Warning Score (0-20)")
+    qsofa_score: int = Field(default=0, ge=0, le=3, description="qSOFA sepsis screening score (0-3)")
+    qsofa_positive: bool = Field(default=False, description="True if qSOFA >= 2 (sepsis risk)")
+    pediatric_adjusted: bool = Field(default=False, description="True if pediatric vital ranges were used")
+    
+    # Critical Alerts
+    critical_alerts: List[str] = Field(default=[], description="Immediate attention alerts")
+    
     # Explainability
     contributing_factors: Dict[str, float] = Field(..., description="Factors contributing to risk level")
     recommendations: List[str] = Field(..., description="Triage recommendations for healthcare workers")
@@ -166,6 +175,7 @@ class RiskAssessmentResponse(BaseModel):
     system_info: Dict = Field(default={
         "system_type": "Clinical Decision Support System (CDSS)",
         "purpose": "Patient prioritization assistance",
+        "clinical_scores": ["NEWS2 (National Early Warning Score 2)", "qSOFA (Sepsis Screening)"],
         "not_intended_for": ["Disease diagnosis", "Treatment prescription", "Replacing medical professionals"]
     })
 
@@ -248,7 +258,8 @@ async def assess_patient_risk(patient: PatientVitals):
             'oxygen_saturation': patient.oxygen_saturation,
             'respiratory_rate': patient.respiratory_rate,
             'symptom_duration_days': patient.symptom_duration_days,
-            'pain_level': patient.pain_level
+            'pain_level': patient.pain_level,
+            'chief_complaint': patient.chief_complaint or ''
         }
         
         # Perform risk assessment
@@ -261,6 +272,11 @@ async def assess_patient_risk(patient: PatientVitals):
             risk_level=result.risk_level.value,
             urgency_score=result.urgency_score,
             confidence=result.confidence,
+            news2_score=result.news2_score,
+            qsofa_score=result.qsofa_score,
+            qsofa_positive=result.qsofa_positive,
+            pediatric_adjusted=result.pediatric_adjusted,
+            critical_alerts=result.critical_alerts,
             contributing_factors=result.contributing_factors,
             recommendations=result.recommendations
         )
@@ -314,7 +330,9 @@ async def get_vital_ranges():
     For educational/transparency purposes.
     """
     return {
-        "vital_ranges": risk_engine.VITAL_RANGES,
+        "adult_vital_ranges": risk_engine.VITAL_RANGES,
+        "pediatric_vital_ranges": risk_engine.PEDIATRIC_VITAL_RANGES,
+        "high_risk_symptoms": list(risk_engine.HIGH_RISK_SYMPTOMS.keys()),
         "note": "These are general reference ranges. Individual patient context matters. "
                "Healthcare professionals should use clinical judgment.",
         "source": "Based on WHO and standard clinical guidelines",

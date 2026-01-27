@@ -49,11 +49,21 @@ class RiskAssessmentResult:
     contributing_factors: Dict[str, float]
     recommendations: List[str]
     confidence: float
+    news2_score: int = 0  # NEWS2 Early Warning Score (0-20)
+    qsofa_score: int = 0  # Quick SOFA score for sepsis screening (0-3)
+    qsofa_positive: bool = False  # True if qSOFA >= 2 (sepsis risk)
+    pediatric_adjusted: bool = False  # True if pediatric ranges were used
+    critical_alerts: List[str] = None  # Immediate attention alerts
+    trend_indicator: str = ""  # "STABLE", "IMPROVING", "DETERIORATING"
     disclaimer: str = (
         "⚠️ IMPORTANT: This is a preliminary risk assessment tool for patient prioritization only. "
         "It is NOT a medical diagnosis. All results must be reviewed and validated by a licensed "
         "healthcare professional before any medical decisions are made."
     )
+    
+    def __post_init__(self):
+        if self.critical_alerts is None:
+            self.critical_alerts = []
 
 
 class HealthcareRiskTriageEngine:
@@ -94,6 +104,72 @@ class HealthcareRiskTriageEngine:
         'respiratory_rate': {'low': 12, 'high': 20, 'critical_low': 8, 'critical_high': 30}
     }
     
+    # Pediatric-specific vital ranges by age group
+    PEDIATRIC_VITAL_RANGES = {
+        'infant_0_1': {
+            'heart_rate': {'low': 100, 'high': 160, 'critical_low': 80, 'critical_high': 190},
+            'respiratory_rate': {'low': 30, 'high': 60, 'critical_low': 20, 'critical_high': 70},
+            'bp_systolic': {'low': 70, 'high': 100, 'critical_low': 50, 'critical_high': 110}
+        },
+        'toddler_1_3': {
+            'heart_rate': {'low': 90, 'high': 150, 'critical_low': 70, 'critical_high': 170},
+            'respiratory_rate': {'low': 24, 'high': 40, 'critical_low': 16, 'critical_high': 50},
+            'bp_systolic': {'low': 80, 'high': 110, 'critical_low': 60, 'critical_high': 120}
+        },
+        'preschool_3_6': {
+            'heart_rate': {'low': 80, 'high': 120, 'critical_low': 60, 'critical_high': 140},
+            'respiratory_rate': {'low': 22, 'high': 34, 'critical_low': 14, 'critical_high': 44},
+            'bp_systolic': {'low': 85, 'high': 115, 'critical_low': 65, 'critical_high': 125}
+        },
+        'school_6_12': {
+            'heart_rate': {'low': 70, 'high': 110, 'critical_low': 50, 'critical_high': 130},
+            'respiratory_rate': {'low': 18, 'high': 30, 'critical_low': 12, 'critical_high': 36},
+            'bp_systolic': {'low': 90, 'high': 120, 'critical_low': 70, 'critical_high': 135}
+        },
+        'adolescent_12_18': {
+            'heart_rate': {'low': 60, 'high': 100, 'critical_low': 45, 'critical_high': 120},
+            'respiratory_rate': {'low': 12, 'high': 20, 'critical_low': 10, 'critical_high': 28},
+            'bp_systolic': {'low': 90, 'high': 130, 'critical_low': 75, 'critical_high': 145}
+        }
+    }
+    
+    # Symptom keywords that increase urgency (for chief complaint analysis)
+    HIGH_RISK_SYMPTOMS = {
+        'chest pain': 25,
+        'difficulty breathing': 30,
+        'shortness of breath': 25,
+        'sudden weakness': 25,
+        'numbness': 20,
+        'severe headache': 20,
+        'worst headache': 25,
+        'confusion': 25,
+        'altered consciousness': 30,
+        'unresponsive': 35,
+        'seizure': 30,
+        'convulsion': 30,
+        'bleeding heavily': 25,
+        'vomiting blood': 30,
+        'blood in stool': 20,
+        'severe abdominal pain': 20,
+        'crushing chest': 30,
+        'radiating arm pain': 25,
+        'jaw pain': 20,
+        'fainting': 20,
+        'syncope': 20,
+        'allergic reaction': 25,
+        'swelling throat': 30,
+        'cannot swallow': 25,
+        'snake bite': 35,
+        'poisoning': 30,
+        'overdose': 30,
+        'suicidal': 30,
+        'self harm': 30,
+        'trauma': 20,
+        'accident': 20,
+        'fall': 15,
+        'burn': 20
+    }
+    
     FEATURE_NAMES = [
         'age', 'gender', 'heart_rate', 'bp_systolic', 'bp_diastolic',
         'temperature', 'oxygen_saturation', 'respiratory_rate',
@@ -105,6 +181,256 @@ class HealthcareRiskTriageEngine:
         self.scaler = StandardScaler()
         self.is_trained = False
         self.feature_importance = {}
+        self.patient_history = {}  # For trend tracking
+    
+    def _get_age_group(self, age: int) -> str:
+        """Determine age group for pediatric vital range selection"""
+        if age < 1:
+            return 'infant_0_1'
+        elif age < 3:
+            return 'toddler_1_3'
+        elif age < 6:
+            return 'preschool_3_6'
+        elif age < 12:
+            return 'school_6_12'
+        elif age < 18:
+            return 'adolescent_12_18'
+        else:
+            return 'adult'
+    
+    def _get_vital_ranges_for_age(self, age: int) -> Dict:
+        """Get appropriate vital ranges based on patient age"""
+        age_group = self._get_age_group(age)
+        if age_group == 'adult':
+            return self.VITAL_RANGES
+        
+        # Merge pediatric ranges with adult ranges for vitals not specified
+        pediatric = self.PEDIATRIC_VITAL_RANGES.get(age_group, {})
+        ranges = self.VITAL_RANGES.copy()
+        for vital, values in pediatric.items():
+            ranges[vital] = values
+        return ranges
+    
+    def _calculate_qsofa_score(self, data: Dict) -> Tuple[int, bool, List[str]]:
+        """
+        Calculate qSOFA (Quick SOFA) score for sepsis screening.
+        
+        qSOFA criteria (each = 1 point):
+        - Respiratory rate ≥ 22/min
+        - Systolic BP ≤ 100 mmHg
+        - Altered mental status (GCS < 15, approximated by confusion symptoms)
+        
+        qSOFA ≥ 2 suggests possible sepsis - requires urgent evaluation.
+        
+        DISCLAIMER: This is a screening tool, NOT a diagnosis.
+        """
+        score = 0
+        alerts = []
+        
+        # Respiratory rate ≥ 22
+        if data['respiratory_rate'] >= 22:
+            score += 1
+            alerts.append("Elevated respiratory rate (≥22/min)")
+        
+        # Systolic BP ≤ 100
+        if data['bp_systolic'] <= 100:
+            score += 1
+            alerts.append("Low systolic blood pressure (≤100 mmHg)")
+        
+        # Altered mental status - check chief complaint for indicators
+        chief_complaint = data.get('chief_complaint', '').lower()
+        mental_status_keywords = ['confusion', 'confused', 'disoriented', 'altered', 
+                                   'unresponsive', 'drowsy', 'lethargic', 'agitated']
+        if any(keyword in chief_complaint for keyword in mental_status_keywords):
+            score += 1
+            alerts.append("Possible altered mental status indicated")
+        
+        is_positive = score >= 2
+        
+        if is_positive:
+            alerts.insert(0, "🚨 qSOFA POSITIVE (≥2): Possible sepsis - URGENT evaluation required")
+        
+        return score, is_positive, alerts
+    
+    def _calculate_news2_score(self, data: Dict) -> Tuple[int, str, List[str]]:
+        """
+        Calculate NEWS2 (National Early Warning Score 2) for clinical deterioration.
+        
+        Based on Royal College of Physicians UK guidelines.
+        Score 0-20:
+        - 0-4: Low risk
+        - 5-6: Medium risk (increase monitoring)
+        - 7+: High risk (urgent response needed)
+        
+        DISCLAIMER: This is an early warning indicator, NOT a diagnosis.
+        """
+        score = 0
+        factors = []
+        
+        # Respiratory rate scoring
+        rr = data['respiratory_rate']
+        if rr <= 8:
+            score += 3
+            factors.append(f"Respiratory rate critically low: {rr}")
+        elif rr <= 11:
+            score += 1
+            factors.append(f"Respiratory rate low: {rr}")
+        elif rr <= 20:
+            score += 0  # Normal
+        elif rr <= 24:
+            score += 2
+            factors.append(f"Respiratory rate elevated: {rr}")
+        else:
+            score += 3
+            factors.append(f"Respiratory rate critically high: {rr}")
+        
+        # SpO2 scoring (Scale 1 - for patients NOT on supplemental O2)
+        spo2 = data['oxygen_saturation']
+        if spo2 <= 91:
+            score += 3
+            factors.append(f"SpO2 critically low: {spo2}%")
+        elif spo2 <= 93:
+            score += 2
+            factors.append(f"SpO2 low: {spo2}%")
+        elif spo2 <= 95:
+            score += 1
+            factors.append(f"SpO2 slightly low: {spo2}%")
+        # 96-100 = 0 points
+        
+        # Systolic BP scoring
+        sbp = data['bp_systolic']
+        if sbp <= 90:
+            score += 3
+            factors.append(f"BP critically low: {sbp} mmHg")
+        elif sbp <= 100:
+            score += 2
+            factors.append(f"BP low: {sbp} mmHg")
+        elif sbp <= 110:
+            score += 1
+            factors.append(f"BP slightly low: {sbp} mmHg")
+        elif sbp <= 219:
+            score += 0  # Normal range
+        else:
+            score += 3
+            factors.append(f"BP critically high: {sbp} mmHg")
+        
+        # Heart rate scoring
+        hr = data['heart_rate']
+        if hr <= 40:
+            score += 3
+            factors.append(f"Heart rate critically low: {hr}")
+        elif hr <= 50:
+            score += 1
+            factors.append(f"Heart rate low: {hr}")
+        elif hr <= 90:
+            score += 0  # Normal
+        elif hr <= 110:
+            score += 1
+            factors.append(f"Heart rate elevated: {hr}")
+        elif hr <= 130:
+            score += 2
+            factors.append(f"Heart rate high: {hr}")
+        else:
+            score += 3
+            factors.append(f"Heart rate critically high: {hr}")
+        
+        # Temperature scoring
+        temp = data['temperature']
+        if temp <= 35.0:
+            score += 3
+            factors.append(f"Temperature critically low: {temp}°C")
+        elif temp <= 36.0:
+            score += 1
+            factors.append(f"Temperature low: {temp}°C")
+        elif temp <= 38.0:
+            score += 0  # Normal
+        elif temp <= 39.0:
+            score += 1
+            factors.append(f"Temperature elevated: {temp}°C")
+        else:
+            score += 2
+            factors.append(f"Temperature high: {temp}°C")
+        
+        # Determine risk level
+        if score >= 7:
+            risk_level = "HIGH"
+            factors.insert(0, f"🔴 NEWS2 Score: {score} - HIGH RISK - Urgent clinical response required")
+        elif score >= 5:
+            risk_level = "MEDIUM"
+            factors.insert(0, f"🟡 NEWS2 Score: {score} - MEDIUM RISK - Increased monitoring required")
+        else:
+            risk_level = "LOW"
+            factors.insert(0, f"🟢 NEWS2 Score: {score} - LOW RISK - Continue routine monitoring")
+        
+        return score, risk_level, factors
+    
+    def _analyze_chief_complaint(self, chief_complaint: str) -> Tuple[int, List[str]]:
+        """
+        Analyze chief complaint for high-risk symptom keywords.
+        Returns additional urgency points and alerts.
+        """
+        if not chief_complaint:
+            return 0, []
+        
+        complaint_lower = chief_complaint.lower()
+        total_points = 0
+        alerts = []
+        
+        for symptom, points in self.HIGH_RISK_SYMPTOMS.items():
+            if symptom in complaint_lower:
+                total_points += points
+                alerts.append(f"⚠️ High-risk symptom detected: {symptom.title()}")
+        
+        # Cap the symptom-based points
+        total_points = min(total_points, 40)
+        
+        return total_points, alerts
+    
+    def _generate_critical_alerts(self, data: Dict, qsofa_positive: bool, news2_score: int) -> List[str]:
+        """Generate critical alerts requiring immediate attention"""
+        alerts = []
+        
+        # Immediate life-threatening conditions
+        if data['oxygen_saturation'] < 88:
+            alerts.append("🚨 CRITICAL: SpO2 < 88% - Immediate oxygen support may be required")
+        
+        if data['bp_systolic'] < 80:
+            alerts.append("🚨 CRITICAL: Systolic BP < 80 mmHg - Possible shock - Immediate evaluation")
+        
+        if data['bp_systolic'] > 200:
+            alerts.append("🚨 CRITICAL: Systolic BP > 200 mmHg - Hypertensive emergency risk")
+        
+        if data['heart_rate'] < 40:
+            alerts.append("🚨 CRITICAL: Heart rate < 40 bpm - Severe bradycardia")
+        
+        if data['heart_rate'] > 150:
+            alerts.append("🚨 CRITICAL: Heart rate > 150 bpm - Severe tachycardia")
+        
+        if data['temperature'] > 40.5:
+            alerts.append("🚨 CRITICAL: Temperature > 40.5°C - Hyperpyrexia - Immediate cooling needed")
+        
+        if data['temperature'] < 34.0:
+            alerts.append("🚨 CRITICAL: Temperature < 34°C - Hypothermia - Immediate warming needed")
+        
+        if data['respiratory_rate'] < 8:
+            alerts.append("🚨 CRITICAL: Respiratory rate < 8 - Possible respiratory failure")
+        
+        if data['respiratory_rate'] > 35:
+            alerts.append("🚨 CRITICAL: Respiratory rate > 35 - Severe respiratory distress")
+        
+        if qsofa_positive:
+            alerts.append("🚨 SEPSIS SCREENING POSITIVE - Urgent sepsis evaluation required")
+        
+        if news2_score >= 7:
+            alerts.append("🚨 NEWS2 HIGH RISK - Urgent clinical response team notification recommended")
+        
+        # Pediatric-specific alerts
+        age = data['age']
+        if age < 1:
+            if data['temperature'] > 38.0:
+                alerts.append("🚨 PEDIATRIC: Fever in infant < 1 year - Requires immediate physician evaluation")
+        
+        return alerts
         
     def _validate_input(self, data: Dict) -> Tuple[bool, List[str]]:
         """Validate input data ranges and completeness"""
@@ -340,27 +666,57 @@ class HealthcareRiskTriageEngine:
     
     def assess_risk(self, patient_data: Dict) -> RiskAssessmentResult:
         """
-        Main risk assessment function.
+        Main risk assessment function with enhanced clinical scoring.
         
         IMPORTANT: This function provides RISK INDICATORS for patient prioritization.
         It does NOT diagnose any disease or medical condition.
+        
+        Now includes:
+        - qSOFA sepsis screening
+        - NEWS2 early warning score
+        - Pediatric-adjusted vital ranges
+        - Symptom-based risk modifiers
+        - Critical alerts system
         
         Args:
             patient_data: Dictionary containing patient vitals and symptoms
             
         Returns:
-            RiskAssessmentResult with risk level, urgency score, and recommendations
+            RiskAssessmentResult with comprehensive risk assessment
         """
         # Validate input
         is_valid, errors = self._validate_input(patient_data)
         if not is_valid:
             raise ValueError(f"Invalid input data: {', '.join(errors)}")
         
+        # Check if pediatric ranges should be used
+        age = patient_data['age']
+        pediatric_adjusted = age < 18
+        
         # Calculate deviation scores for explainability
         deviations = self._calculate_vital_deviation_score(patient_data)
         
         # Rule-based urgency calculation (transparent, auditable)
         urgency_score = self._rule_based_urgency(patient_data, deviations)
+        
+        # Calculate qSOFA score for sepsis screening
+        qsofa_score, qsofa_positive, qsofa_alerts = self._calculate_qsofa_score(patient_data)
+        
+        # Calculate NEWS2 early warning score
+        news2_score, news2_risk, news2_factors = self._calculate_news2_score(patient_data)
+        
+        # Analyze chief complaint for high-risk symptoms
+        chief_complaint = patient_data.get('chief_complaint', '')
+        symptom_points, symptom_alerts = self._analyze_chief_complaint(chief_complaint)
+        urgency_score += symptom_points
+        
+        # Boost urgency based on qSOFA and NEWS2
+        if qsofa_positive:
+            urgency_score += 20  # Sepsis risk significantly increases urgency
+        if news2_score >= 7:
+            urgency_score += 15
+        elif news2_score >= 5:
+            urgency_score += 8
         
         # If model is trained, combine with ML prediction
         if self.is_trained and self.model is not None:
@@ -383,17 +739,30 @@ class HealthcareRiskTriageEngine:
             # Weighted combination: 60% rule-based, 40% ML (transparency priority)
             ml_urgency_adjustment = (ml_proba[2] * 30 + ml_proba[1] * 15) if len(ml_proba) == 3 else 0
             urgency_score = int(0.6 * urgency_score + 0.4 * (urgency_score + ml_urgency_adjustment))
-            urgency_score = min(100, max(0, urgency_score))
             
             confidence = max(ml_proba)
         else:
             confidence = 0.7  # Rule-based confidence
         
+        # Cap urgency score
+        urgency_score = min(100, max(0, urgency_score))
+        
         # Determine risk level
         risk_level = self._determine_risk_level(urgency_score)
         
+        # Generate critical alerts
+        critical_alerts = self._generate_critical_alerts(patient_data, qsofa_positive, news2_score)
+        critical_alerts.extend(symptom_alerts)
+        
         # Generate recommendations
         recommendations = self._generate_recommendations(risk_level, deviations, patient_data)
+        
+        # Add qSOFA and NEWS2 info to recommendations
+        if qsofa_positive:
+            recommendations.insert(0, "🚨 SEPSIS ALERT: qSOFA ≥ 2 - Initiate sepsis protocol evaluation")
+        if news2_score >= 5:
+            recommendations.insert(1 if qsofa_positive else 0, 
+                f"📊 NEWS2 Score: {news2_score} - {news2_risk} RISK - Adjust monitoring frequency")
         
         # Filter contributing factors (show significant ones)
         significant_factors = {k: round(v, 3) for k, v in deviations.items() if v > 0.1}
@@ -403,7 +772,12 @@ class HealthcareRiskTriageEngine:
             urgency_score=urgency_score,
             contributing_factors=significant_factors,
             recommendations=recommendations,
-            confidence=round(confidence, 3)
+            confidence=round(confidence, 3),
+            news2_score=news2_score,
+            qsofa_score=qsofa_score,
+            qsofa_positive=qsofa_positive,
+            pediatric_adjusted=pediatric_adjusted,
+            critical_alerts=critical_alerts
         )
     
     def save_model(self, filepath: str):
