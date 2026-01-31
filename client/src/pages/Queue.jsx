@@ -1,19 +1,19 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import {
-    AlertTriangle,
-    CheckCircle,
-    Clock,
-    Phone,
-    RefreshCw,
-    Search,
-    UserPlus,
-    Users,
-    Volume2
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { queueAPI } from '../services/api';
-import { useAuthStore } from '../stores/authStore';
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Phone,
+  RefreshCw,
+  Search,
+  UserPlus,
+  Users,
+  Volume2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { queueAPI } from "../services/api";
+import { useAuthStore } from "../stores/authStore";
 
 export default function Queue() {
   const { user } = useAuthStore();
@@ -22,12 +22,12 @@ export default function Queue() {
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newPatient, setNewPatient] = useState({
-    patientName: '',
-    age: '',
-    gender: 'male',
-    symptoms: '',
-    contact: '',
-    priority: 'medium'
+    patientName: "",
+    age: "",
+    gender: "male",
+    symptoms: "",
+    contact: "",
+    priority: "medium",
   });
 
   const fetchQueue = async () => {
@@ -36,7 +36,7 @@ export default function Queue() {
       setStatus(response.data.data);
       setQueue(response.data.data.queue || []);
     } catch (error) {
-      console.error('Error fetching queue:', error);
+      console.error("Error fetching queue:", error);
     } finally {
       setLoading(false);
     }
@@ -52,19 +52,19 @@ export default function Queue() {
     e.preventDefault();
     try {
       await queueAPI.add(newPatient);
-      toast.success('Patient added to queue');
+      toast.success("Patient added to queue");
       setShowAddModal(false);
       setNewPatient({
-        patientName: '',
-        age: '',
-        gender: 'male',
-        symptoms: '',
-        contact: '',
-        priority: 'medium'
+        patientName: "",
+        age: "",
+        gender: "male",
+        symptoms: "",
+        contact: "",
+        priority: "medium",
       });
       fetchQueue();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to add patient');
+      toast.error(error.response?.data?.error || "Failed to add patient");
     }
   };
 
@@ -74,55 +74,59 @@ export default function Queue() {
       toast.success(`Calling patient ${token}`);
       fetchQueue();
     } catch (error) {
-      toast.error('Failed to call patient');
+      toast.error("Failed to call patient");
     }
   };
 
   const completePatient = async (token) => {
     try {
       await queueAPI.completePatient(token, {});
-      toast.success('Patient marked as completed');
+      toast.success("Patient marked as completed");
       fetchQueue();
     } catch (error) {
-      toast.error('Failed to complete');
+      toast.error("Failed to complete");
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'critical': return 'badge-critical';
-      case 'high': return 'badge-high';
-      case 'medium': return 'badge-medium';
-      default: return 'badge-low';
+      case "critical":
+        return "badge-critical";
+      case "high":
+        return "badge-high";
+      case "medium":
+        return "badge-medium";
+      default:
+        return "badge-low";
     }
   };
 
   // Role-specific titles and capabilities
   const roleConfig = {
     admin: {
-      title: '📋 Queue Management',
-      subtitle: 'Full queue control and oversight',
+      title: "📋 Queue Management",
+      subtitle: "Full queue control and oversight",
       canAdd: true,
       canCall: true,
       canComplete: true,
     },
     doctor: {
-      title: '🩺 Patient Queue',
-      subtitle: 'View and call patients for consultation',
+      title: "🩺 Patient Queue",
+      subtitle: "View and call patients for consultation",
       canAdd: false,
       canCall: true,
       canComplete: true,
     },
     nurse: {
-      title: '⏳ Triage Queue',
-      subtitle: 'Manage patient triage and vitals',
+      title: "⏳ Triage Queue",
+      subtitle: "Manage patient triage and vitals",
       canAdd: true,
       canCall: true,
       canComplete: false,
     },
     staff: {
-      title: '📝 Queue Display',
-      subtitle: 'Register patients and manage queue',
+      title: "📝 Queue Display",
+      subtitle: "Register patients and manage queue",
       canAdd: true,
       canCall: true,
       canComplete: false,
@@ -136,15 +140,19 @@ export default function Queue() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-white">{config.title}</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">{config.subtitle}</p>
+          <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-white">
+            {config.title}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            {config.subtitle}
+          </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={fetchQueue}
             className="btn-secondary flex items-center gap-2"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
           {config.canAdd && (
@@ -167,8 +175,12 @@ export default function Queue() {
               <Users className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{status?.totalWaiting || 0}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Waiting</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {status?.totalWaiting || 0}
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Waiting
+              </p>
             </div>
           </div>
         </div>
@@ -178,8 +190,12 @@ export default function Queue() {
               <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{status?.servedToday || 0}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Served Today</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {status?.servedToday || 0}
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Served Today
+              </p>
             </div>
           </div>
         </div>
@@ -189,8 +205,12 @@ export default function Queue() {
               <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{status?.averageWaitTime || 0}m</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Avg Wait</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {status?.averageWaitTime || 0}m
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Avg Wait
+              </p>
             </div>
           </div>
         </div>
@@ -200,8 +220,12 @@ export default function Queue() {
               <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">{status?.priorityBreakdown?.critical || 0}</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Critical</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                {status?.priorityBreakdown?.critical || 0}
+              </p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Critical
+              </p>
             </div>
           </div>
         </div>
@@ -225,7 +249,9 @@ export default function Queue() {
       {/* Queue List */}
       <div className="card">
         <div className="card-header flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Waiting Queue</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            Waiting Queue
+          </h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
@@ -239,17 +265,30 @@ export default function Queue() {
           <table className="w-full">
             <thead className="bg-slate-50 dark:bg-slate-700/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">Token</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">Patient</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">Priority</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">Wait Time</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
+                  Token
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
+                  Patient
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
+                  Priority
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
+                  Wait Time
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {queue.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
+                  <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
+                  >
                     No patients in queue
                   </td>
                 </tr>
@@ -263,12 +302,18 @@ export default function Queue() {
                     className="hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
                     <td className="px-4 py-3">
-                      <span className="font-mono font-bold text-primary-600 dark:text-primary-400">{patient.token}</span>
+                      <span className="font-mono font-bold text-primary-600 dark:text-primary-400">
+                        {patient.token}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-white">{patient.patientName}</p>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Age: {patient.age}</p>
+                        <p className="font-medium text-slate-900 dark:text-white">
+                          {patient.patientName}
+                        </p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                          Age: {patient.age}
+                        </p>
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -277,7 +322,10 @@ export default function Queue() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
-                      {Math.round((Date.now() - new Date(patient.createdAt)) / 60000)} min
+                      {Math.round(
+                        (Date.now() - new Date(patient.createdAt)) / 60000,
+                      )}{" "}
+                      min
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
@@ -317,14 +365,21 @@ export default function Queue() {
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full p-6"
           >
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">Add Patient to Queue</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
+              Add Patient to Queue
+            </h2>
             <form onSubmit={addToQueue} className="space-y-4">
               <div>
                 <label className="label">Patient Name *</label>
                 <input
                   type="text"
                   value={newPatient.patientName}
-                  onChange={(e) => setNewPatient({ ...newPatient, patientName: e.target.value })}
+                  onChange={(e) =>
+                    setNewPatient({
+                      ...newPatient,
+                      patientName: e.target.value,
+                    })
+                  }
                   className="input"
                   required
                 />
@@ -335,7 +390,9 @@ export default function Queue() {
                   <input
                     type="number"
                     value={newPatient.age}
-                    onChange={(e) => setNewPatient({ ...newPatient, age: e.target.value })}
+                    onChange={(e) =>
+                      setNewPatient({ ...newPatient, age: e.target.value })
+                    }
                     className="input"
                   />
                 </div>
@@ -343,7 +400,9 @@ export default function Queue() {
                   <label className="label">Priority</label>
                   <select
                     value={newPatient.priority}
-                    onChange={(e) => setNewPatient({ ...newPatient, priority: e.target.value })}
+                    onChange={(e) =>
+                      setNewPatient({ ...newPatient, priority: e.target.value })
+                    }
                     className="input"
                   >
                     <option value="low">Low</option>
@@ -357,7 +416,9 @@ export default function Queue() {
                 <label className="label">Symptoms</label>
                 <textarea
                   value={newPatient.symptoms}
-                  onChange={(e) => setNewPatient({ ...newPatient, symptoms: e.target.value })}
+                  onChange={(e) =>
+                    setNewPatient({ ...newPatient, symptoms: e.target.value })
+                  }
                   className="input h-20"
                 />
               </div>

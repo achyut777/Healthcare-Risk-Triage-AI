@@ -1,40 +1,40 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from "framer-motion";
 import {
-    Activity,
-    AlertCircle,
-    AlertTriangle,
-    ArrowLeft,
-    ArrowRight,
-    Baby,
-    CheckCircle,
-    ClipboardList,
-    Copy,
-    Heart,
-    Loader2,
-    ShieldAlert,
-    Thermometer,
-    User,
-    UserPlus
-} from 'lucide-react';
-import { useState } from 'react';
-import toast from 'react-hot-toast';
-import { assessmentAPI, queueAPI } from '../services/api';
-import { useAuthStore } from '../stores/authStore';
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Baby,
+  CheckCircle,
+  ClipboardList,
+  Copy,
+  Heart,
+  Loader2,
+  ShieldAlert,
+  Thermometer,
+  User,
+  UserPlus,
+} from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { assessmentAPI, queueAPI } from "../services/api";
+import { useAuthStore } from "../stores/authStore";
 
 const initialVitals = {
-  patientName: '',
-  patientId: '',
-  age: '',
+  patientName: "",
+  patientId: "",
+  age: "",
   gender: 1,
-  heartRate: '',
-  bpSystolic: '',
-  bpDiastolic: '',
-  temperature: '',
-  oxygenSaturation: '',
-  respiratoryRate: '',
-  symptomDurationDays: '',
+  heartRate: "",
+  bpSystolic: "",
+  bpDiastolic: "",
+  temperature: "",
+  oxygenSaturation: "",
+  respiratoryRate: "",
+  symptomDurationDays: "",
   painLevel: 5,
-  chiefComplaint: ''
+  chiefComplaint: "",
 };
 
 export default function Assessment() {
@@ -48,30 +48,42 @@ export default function Assessment() {
 
   // Role-specific configuration
   const roleConfig = {
-    admin: { title: '📊 Risk Assessment System', subtitle: 'Full administrative access to all assessments' },
-    doctor: { title: '🩺 Patient Assessment', subtitle: 'Evaluate patients and review AI recommendations' },
-    nurse: { title: '💉 Triage Assessment', subtitle: 'Initial patient triage and vital signs entry' },
-    staff: { title: '📝 Quick Assessment', subtitle: 'Basic patient intake assessment' },
+    admin: {
+      title: "📊 Risk Assessment System",
+      subtitle: "Full administrative access to all assessments",
+    },
+    doctor: {
+      title: "🩺 Patient Assessment",
+      subtitle: "Evaluate patients and review AI recommendations",
+    },
+    nurse: {
+      title: "💉 Triage Assessment",
+      subtitle: "Initial patient triage and vital signs entry",
+    },
+    staff: {
+      title: "📝 Quick Assessment",
+      subtitle: "Basic patient intake assessment",
+    },
   };
   const config = roleConfig[user?.role] || roleConfig.staff;
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setVitals(prev => ({
+    setVitals((prev) => ({
       ...prev,
-      [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value
+      [name]: type === "number" ? (value === "" ? "" : Number(value)) : value,
     }));
   };
 
   const validateStep = () => {
     if (step === 1) {
       if (!vitals.patientName || !vitals.age) {
-        toast.error('Please fill in patient name and age');
+        toast.error("Please fill in patient name and age");
         return false;
       }
     } else if (step === 2) {
       if (!vitals.heartRate || !vitals.bpSystolic || !vitals.bpDiastolic) {
-        toast.error('Please fill in all vital signs');
+        toast.error("Please fill in all vital signs");
         return false;
       }
     }
@@ -80,12 +92,12 @@ export default function Assessment() {
 
   const nextStep = () => {
     if (validateStep()) {
-      setStep(prev => Math.min(prev + 1, 3));
+      setStep((prev) => Math.min(prev + 1, 3));
     }
   };
 
   const prevStep = () => {
-    setStep(prev => Math.max(prev - 1, 1));
+    setStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async () => {
@@ -102,15 +114,15 @@ export default function Assessment() {
         oxygenSaturation: Number(vitals.oxygenSaturation) || 98,
         respiratoryRate: Number(vitals.respiratoryRate) || 16,
         symptomDurationDays: Number(vitals.symptomDurationDays) || 1,
-        painLevel: Number(vitals.painLevel)
+        painLevel: Number(vitals.painLevel),
       };
 
       const response = await assessmentAPI.create(payload);
       setResult(response.data.data);
       setStep(4);
-      toast.success('Assessment completed!');
+      toast.success("Assessment completed!");
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Assessment failed');
+      toast.error(error.response?.data?.error || "Assessment failed");
     } finally {
       setLoading(false);
     }
@@ -125,34 +137,34 @@ export default function Assessment() {
 
   const addToQueue = async () => {
     if (!result) return;
-    
+
     setAddingToQueue(true);
     try {
       // Map risk level to priority
       const priorityMap = {
-        'CRITICAL': 'critical',
-        'HIGH': 'high',
-        'MEDIUM': 'medium',
-        'LOW': 'low'
+        CRITICAL: "critical",
+        HIGH: "high",
+        MEDIUM: "medium",
+        LOW: "low",
       };
-      
+
       const queueData = {
         patientName: vitals.patientName,
         age: Number(vitals.age),
-        gender: vitals.gender === 1 ? 'male' : 'female',
-        symptoms: vitals.chiefComplaint || 'General consultation',
-        contact: vitals.contact || '',
-        priority: priorityMap[result.riskLevel] || 'medium',
-        urgencyScore: result.urgencyScore
+        gender: vitals.gender === 1 ? "male" : "female",
+        symptoms: vitals.chiefComplaint || "General consultation",
+        contact: vitals.contact || "",
+        priority: priorityMap[result.riskLevel] || "medium",
+        urgencyScore: result.urgencyScore,
       };
-      
+
       const response = await queueAPI.add(queueData);
       if (response.data.success) {
         setQueueToken(response.data.data.token);
         toast.success(`Added to queue! Token: ${response.data.data.token}`);
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to add to queue');
+      toast.error(error.response?.data?.error || "Failed to add to queue");
     } finally {
       setAddingToQueue(false);
     }
@@ -161,23 +173,29 @@ export default function Assessment() {
   const copyToken = () => {
     if (queueToken) {
       navigator.clipboard.writeText(queueToken);
-      toast.success('Token copied to clipboard!');
+      toast.success("Token copied to clipboard!");
     }
   };
 
   const getRiskColor = (level) => {
     switch (level) {
-      case 'critical': return 'red';
-      case 'high': return 'orange';
-      case 'medium': return 'yellow';
-      default: return 'green';
+      case "critical":
+        return "red";
+      case "high":
+        return "orange";
+      case "medium":
+        return "yellow";
+      default:
+        return "green";
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto animate-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-display font-bold text-slate-900">{config.title}</h1>
+        <h1 className="text-2xl font-display font-bold text-slate-900">
+          {config.title}
+        </h1>
         <p className="text-slate-600 mt-1">{config.subtitle}</p>
       </div>
 
@@ -185,27 +203,33 @@ export default function Assessment() {
       {step < 4 && (
         <div className="flex items-center justify-between mb-8">
           {[
-            { num: 1, label: 'Patient Info' },
-            { num: 2, label: 'Vital Signs' },
-            { num: 3, label: 'Symptoms' }
+            { num: 1, label: "Patient Info" },
+            { num: 2, label: "Vital Signs" },
+            { num: 3, label: "Symptoms" },
           ].map((s, i) => (
             <div key={s.num} className="flex items-center">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold transition-all ${
-                step >= s.num
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-slate-200 text-slate-600'
-              }`}>
+              <div
+                className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold transition-all ${
+                  step >= s.num
+                    ? "bg-primary-600 text-white"
+                    : "bg-slate-200 text-slate-600"
+                }`}
+              >
                 {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
               </div>
-              <span className={`ml-2 text-sm font-medium hidden sm:inline ${
-                step >= s.num ? 'text-primary-600' : 'text-slate-500'
-              }`}>
+              <span
+                className={`ml-2 text-sm font-medium hidden sm:inline ${
+                  step >= s.num ? "text-primary-600" : "text-slate-500"
+                }`}
+              >
                 {s.label}
               </span>
               {i < 2 && (
-                <div className={`w-12 sm:w-24 h-1 mx-2 rounded-full ${
-                  step > s.num ? 'bg-primary-600' : 'bg-slate-200'
-                }`} />
+                <div
+                  className={`w-12 sm:w-24 h-1 mx-2 rounded-full ${
+                    step > s.num ? "bg-primary-600" : "bg-slate-200"
+                  }`}
+                />
               )}
             </div>
           ))}
@@ -423,7 +447,9 @@ export default function Assessment() {
                   />
                 </div>
                 <div>
-                  <label className="label">Pain Level: {vitals.painLevel}/10</label>
+                  <label className="label">
+                    Pain Level: {vitals.painLevel}/10
+                  </label>
                   <input
                     type="range"
                     name="painLevel"
@@ -452,11 +478,17 @@ export default function Assessment() {
               className="card-body"
             >
               {/* Risk Level Header */}
-              <div className={`p-6 -mx-6 -mt-6 mb-6 bg-${getRiskColor(result.riskLevel)}-50 border-b border-${getRiskColor(result.riskLevel)}-100`}>
+              <div
+                className={`p-6 -mx-6 -mt-6 mb-6 bg-${getRiskColor(result.riskLevel)}-50 border-b border-${getRiskColor(result.riskLevel)}-100`}
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Risk Assessment Result</p>
-                    <h2 className={`text-3xl font-display font-bold text-${getRiskColor(result.riskLevel)}-700 uppercase`}>
+                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+                      Risk Assessment Result
+                    </p>
+                    <h2
+                      className={`text-3xl font-display font-bold text-${getRiskColor(result.riskLevel)}-700 uppercase`}
+                    >
                       {result.riskLevel} Risk
                     </h2>
                     {result.pediatricAdjusted && (
@@ -465,8 +497,12 @@ export default function Assessment() {
                       </span>
                     )}
                   </div>
-                  <div className={`w-20 h-20 rounded-full bg-${getRiskColor(result.riskLevel)}-100 flex items-center justify-center`}>
-                    <span className={`text-2xl font-bold text-${getRiskColor(result.riskLevel)}-700`}>
+                  <div
+                    className={`w-20 h-20 rounded-full bg-${getRiskColor(result.riskLevel)}-100 flex items-center justify-center`}
+                  >
+                    <span
+                      className={`text-2xl font-bold text-${getRiskColor(result.riskLevel)}-700`}
+                    >
                       {result.urgencyScore}
                     </span>
                   </div>
@@ -481,11 +517,16 @@ export default function Assessment() {
                 <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                   <div className="flex items-center gap-2 mb-3">
                     <ShieldAlert className="w-5 h-5 text-red-600" />
-                    <h3 className="text-sm font-bold text-red-700 dark:text-red-400 uppercase">Critical Alerts</h3>
+                    <h3 className="text-sm font-bold text-red-700 dark:text-red-400 uppercase">
+                      Critical Alerts
+                    </h3>
                   </div>
                   <div className="space-y-2">
                     {result.criticalAlerts.map((alert, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300 font-medium">
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300 font-medium"
+                      >
                         <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                         {alert}
                       </div>
@@ -498,53 +539,79 @@ export default function Assessment() {
               <div className="mb-6 grid grid-cols-2 gap-4">
                 {/* NEWS2 Score */}
                 {result.news2Score !== undefined && (
-                  <div className={`p-4 rounded-lg border ${
-                    result.news2Score >= 7 ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' :
-                    result.news2Score >= 5 ? 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800' :
-                    result.news2Score >= 3 ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800' :
-                    'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                  }`}>
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      result.news2Score >= 7
+                        ? "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800"
+                        : result.news2Score >= 5
+                          ? "bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800"
+                          : result.news2Score >= 3
+                            ? "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800"
+                            : "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <Thermometer className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">NEWS2 Score</span>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
+                        NEWS2 Score
+                      </span>
                     </div>
-                    <div className={`text-2xl font-bold ${
-                      result.news2Score >= 7 ? 'text-red-700' :
-                      result.news2Score >= 5 ? 'text-orange-700' :
-                      result.news2Score >= 3 ? 'text-yellow-700' :
-                      'text-green-700'
-                    }`}>
+                    <div
+                      className={`text-2xl font-bold ${
+                        result.news2Score >= 7
+                          ? "text-red-700"
+                          : result.news2Score >= 5
+                            ? "text-orange-700"
+                            : result.news2Score >= 3
+                              ? "text-yellow-700"
+                              : "text-green-700"
+                      }`}
+                    >
                       {result.news2Score}
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      {result.news2Score >= 7 ? 'High Clinical Risk' :
-                       result.news2Score >= 5 ? 'Medium Clinical Risk' :
-                       result.news2Score >= 3 ? 'Low-Medium Risk' :
-                       'Low Clinical Risk'}
+                      {result.news2Score >= 7
+                        ? "High Clinical Risk"
+                        : result.news2Score >= 5
+                          ? "Medium Clinical Risk"
+                          : result.news2Score >= 3
+                            ? "Low-Medium Risk"
+                            : "Low Clinical Risk"}
                     </p>
                   </div>
                 )}
 
                 {/* qSOFA Score */}
                 {result.qsofaScore !== undefined && (
-                  <div className={`p-4 rounded-lg border ${
-                    result.qsofaPositive ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' :
-                    'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                  }`}>
+                  <div
+                    className={`p-4 rounded-lg border ${
+                      result.qsofaPositive
+                        ? "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800"
+                        : "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800"
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       <Activity className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">qSOFA Score</span>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
+                        qSOFA Score
+                      </span>
                     </div>
-                    <div className={`text-2xl font-bold ${
-                      result.qsofaPositive ? 'text-red-700' : 'text-green-700'
-                    }`}>
+                    <div
+                      className={`text-2xl font-bold ${
+                        result.qsofaPositive ? "text-red-700" : "text-green-700"
+                      }`}
+                    >
                       {result.qsofaScore}/3
                     </div>
                     <p className="text-xs mt-1">
                       {result.qsofaPositive ? (
-                        <span className="text-red-600 dark:text-red-400 font-semibold">⚠️ Sepsis Screening Positive</span>
+                        <span className="text-red-600 dark:text-red-400 font-semibold">
+                          ⚠️ Sepsis Screening Positive
+                        </span>
                       ) : (
-                        <span className="text-green-600 dark:text-green-400">Sepsis Screening Negative</span>
+                        <span className="text-green-600 dark:text-green-400">
+                          Sepsis Screening Negative
+                        </span>
                       )}
                     </p>
                   </div>
@@ -554,10 +621,15 @@ export default function Assessment() {
               {/* Contributing Factors */}
               {result.contributingFactors?.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Contributing Factors</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">
+                    Contributing Factors
+                  </h3>
                   <div className="space-y-2">
                     {result.contributingFactors.map((factor, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm text-slate-700">
+                      <div
+                        key={i}
+                        className="flex items-center gap-2 text-sm text-slate-700"
+                      >
                         <AlertCircle className="w-4 h-4 text-amber-500" />
                         {factor}
                       </div>
@@ -569,10 +641,15 @@ export default function Assessment() {
               {/* Recommendations */}
               {result.recommendations?.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Recommendations</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">
+                    Recommendations
+                  </h3>
                   <div className="space-y-2">
                     {result.recommendations.map((rec, i) => (
-                      <div key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                      <div
+                        key={i}
+                        className="flex items-start gap-2 text-sm text-slate-700"
+                      >
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                         {rec}
                       </div>
@@ -584,8 +661,10 @@ export default function Assessment() {
               {/* Disclaimer */}
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <p className="text-sm text-amber-800">
-                  ⚠️ <strong>Disclaimer:</strong> This is a preliminary risk assessment for patient prioritization only. 
-                  It is NOT a medical diagnosis. Always consult with a qualified healthcare professional.
+                  ⚠️ <strong>Disclaimer:</strong> This is a preliminary risk
+                  assessment for patient prioritization only. It is NOT a
+                  medical diagnosis. Always consult with a qualified healthcare
+                  professional.
                 </p>
               </div>
 
@@ -596,9 +675,13 @@ export default function Assessment() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-6 p-4 bg-green-50 border-2 border-green-200 rounded-lg text-center"
                 >
-                  <p className="text-sm text-green-700 font-medium mb-2">Patient added to queue!</p>
+                  <p className="text-sm text-green-700 font-medium mb-2">
+                    Patient added to queue!
+                  </p>
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl font-mono font-bold text-green-800">{queueToken}</span>
+                    <span className="text-2xl font-mono font-bold text-green-800">
+                      {queueToken}
+                    </span>
                     <button
                       onClick={copyToken}
                       className="p-2 hover:bg-green-100 rounded-lg transition-colors"
@@ -608,7 +691,8 @@ export default function Assessment() {
                     </button>
                   </div>
                   <p className="text-xs text-green-600 mt-2">
-                    Share this token with the patient to check their queue status
+                    Share this token with the patient to check their queue
+                    status
                   </p>
                 </motion.div>
               )}
@@ -636,7 +720,7 @@ export default function Assessment() {
                 )}
                 <button
                   onClick={resetForm}
-                  className={`${queueToken ? 'btn-primary flex-1' : 'btn-secondary'} flex items-center justify-center gap-2`}
+                  className={`${queueToken ? "btn-primary flex-1" : "btn-secondary"} flex items-center justify-center gap-2`}
                 >
                   New Assessment
                 </button>
@@ -656,9 +740,12 @@ export default function Assessment() {
               <ArrowLeft className="w-4 h-4" />
               Back
             </button>
-            
+
             {step < 3 ? (
-              <button onClick={nextStep} className="btn-primary flex items-center gap-2">
+              <button
+                onClick={nextStep}
+                className="btn-primary flex items-center gap-2"
+              >
                 Next
                 <ArrowRight className="w-4 h-4" />
               </button>

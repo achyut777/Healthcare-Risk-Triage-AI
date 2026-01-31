@@ -12,8 +12,8 @@
       "specialization": "Healthcare Administration",
       "isActive": true,
       "assessmentsCount": 156,
-      "lastLogin": "2026-01-27T12:59:27.701Z",
-      "createdAt": "2026-01-27T12:59:27.701Z"
+      "lastLogin": "2026-01-31T07:41:01.192Z",
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "demo-user-002",
@@ -27,8 +27,8 @@
       "specialization": "General Medicine",
       "isActive": true,
       "assessmentsCount": 89,
-      "lastLogin": "2026-01-27T12:59:27.701Z",
-      "createdAt": "2026-01-27T12:59:27.701Z"
+      "lastLogin": "2026-01-31T07:41:01.193Z",
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "demo-user-003",
@@ -42,8 +42,8 @@
       "specialization": "Emergency Care",
       "isActive": true,
       "assessmentsCount": 234,
-      "lastLogin": "2026-01-27T12:59:27.701Z",
-      "createdAt": "2026-01-27T12:59:27.701Z"
+      "lastLogin": "2026-01-31T07:41:01.193Z",
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "demo-user-004",
@@ -57,8 +57,8 @@
       "specialization": "Patient Registration",
       "isActive": true,
       "assessmentsCount": 45,
-      "lastLogin": "2026-01-27T12:59:27.701Z",
-      "createdAt": "2026-01-27T12:59:27.701Z"
+      "lastLogin": "2026-01-31T07:41:01.193Z",
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "demo-user-005",
@@ -72,8 +72,8 @@
       "specialization": "Cardiology",
       "isActive": true,
       "assessmentsCount": 67,
-      "lastLogin": "2026-01-27T12:59:27.701Z",
-      "createdAt": "2026-01-27T12:59:27.701Z"
+      "lastLogin": "2026-01-31T07:41:01.193Z",
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "demo-user-006",
@@ -87,8 +87,8 @@
       "specialization": "Pediatric Care",
       "isActive": true,
       "assessmentsCount": 189,
-      "lastLogin": "2026-01-27T12:59:27.701Z",
-      "createdAt": "2026-01-27T12:59:27.701Z"
+      "lastLogin": "2026-01-31T07:41:01.193Z",
+      "createdAt": "2026-01-31T07:41:01.193Z"
     }
   ],
   "patients": [
@@ -111,7 +111,7 @@
         "Diabetes Type 2"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2025-12-28T12:59:27.702Z"
+      "createdAt": "2026-01-01T07:41:01.193Z"
     },
     {
       "_id": "patient-002",
@@ -131,7 +131,7 @@
         "Arthritis"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-02T12:59:27.702Z"
+      "createdAt": "2026-01-06T07:41:01.193Z"
     },
     {
       "_id": "patient-003",
@@ -150,7 +150,7 @@
       ],
       "medicalHistory": [],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-07T12:59:27.702Z"
+      "createdAt": "2026-01-11T07:41:01.193Z"
     },
     {
       "_id": "patient-004",
@@ -169,7 +169,7 @@
         "Migraine"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-12T12:59:27.702Z"
+      "createdAt": "2026-01-16T07:41:01.193Z"
     },
     {
       "_id": "patient-005",
@@ -191,7 +191,7 @@
         "Hypertension"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-17T12:59:27.702Z"
+      "createdAt": "2026-01-21T07:41:01.193Z"
     },
     {
       "_id": "patient-006",
@@ -210,7 +210,7 @@
         "Thyroid"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-19T12:59:27.702Z"
+      "createdAt": "2026-01-23T07:41:01.193Z"
     },
     {
       "_id": "patient-007",
@@ -232,7 +232,7 @@
         "Diabetes Type 2"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-22T12:59:27.702Z"
+      "createdAt": "2026-01-26T07:41:01.193Z"
     },
     {
       "_id": "patient-008",
@@ -249,7 +249,7 @@
       "allergies": [],
       "medicalHistory": [],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-24T12:59:27.702Z"
+      "createdAt": "2026-01-28T07:41:01.193Z"
     },
     {
       "_id": "patient-009",
@@ -271,7 +271,7 @@
       ],
       "isPediatric": true,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-25T12:59:27.702Z"
+      "createdAt": "2026-01-29T07:41:01.193Z"
     },
     {
       "_id": "patient-010",
@@ -290,7 +290,7 @@
       "isPregnant": true,
       "pregnancyWeeks": 28,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-26T12:59:27.702Z"
+      "createdAt": "2026-01-30T07:41:01.193Z"
     },
     {
       "_id": "patient-011",
@@ -309,7 +309,7 @@
         "Kidney Disease"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.702Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-012",
@@ -330,7 +330,7 @@
         "Breast Cancer - Survivor"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.702Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-013",
@@ -348,7 +348,7 @@
       "medicalHistory": [],
       "isPediatric": true,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.702Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-014",
@@ -370,7 +370,7 @@
         "Hypertension"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.702Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-015",
@@ -390,7 +390,7 @@
         "PCOS"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.702Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-016",
@@ -412,7 +412,7 @@
       "pregnancyWeeks": 36,
       "highRiskPregnancy": true,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-017",
@@ -434,12 +434,12 @@
         "Iron Deficiency Anemia"
       ],
       "menstrualInfo": {
-        "lastPeriod": "2025-12-13T12:59:27.703Z",
+        "lastPeriod": "2025-12-17T07:41:01.193Z",
         "cycleLength": 28,
         "regularCycle": false
       },
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-018",
@@ -461,7 +461,7 @@
       "isPregnant": true,
       "pregnancyWeeks": 34,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-019",
@@ -484,7 +484,7 @@
         "Hyperlipidemia"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-020",
@@ -504,13 +504,13 @@
         "Acne"
       ],
       "menstrualInfo": {
-        "lastPeriod": "2025-11-28T12:59:27.703Z",
+        "lastPeriod": "2025-12-02T07:41:01.193Z",
         "cycleLength": 45,
         "regularCycle": false,
         "heavyBleeding": true
       },
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-021",
@@ -533,7 +533,7 @@
         "Peripheral Neuropathy"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-022",
@@ -557,7 +557,7 @@
       ],
       "isPediatric": true,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-023",
@@ -578,12 +578,12 @@
         "Hypothyroid"
       ],
       "menstrualInfo": {
-        "lastPeriod": "2025-10-29T12:59:27.703Z",
+        "lastPeriod": "2025-11-02T07:41:01.193Z",
         "irregularBleeding": true,
         "hotFlashes": true
       },
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-024",
@@ -603,7 +603,7 @@
         "Liver Cirrhosis"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-025",
@@ -625,7 +625,7 @@
       "isPregnant": true,
       "pregnancyWeeks": 12,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-026",
@@ -648,7 +648,7 @@
         "Hypertension"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-027",
@@ -668,12 +668,12 @@
         "Infertility"
       ],
       "menstrualInfo": {
-        "lastPeriod": "2025-12-23T12:59:27.703Z",
+        "lastPeriod": "2025-12-27T07:41:01.193Z",
         "cycleLength": 30,
         "painfulPeriods": true
       },
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-028",
@@ -694,7 +694,7 @@
         "Previous Stroke"
       ],
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-029",
@@ -714,13 +714,13 @@
         "Menorrhagia"
       ],
       "menstrualInfo": {
-        "lastPeriod": "2026-01-13T12:59:27.703Z",
+        "lastPeriod": "2026-01-17T07:41:01.193Z",
         "cycleLength": 21,
         "heavyBleeding": true,
         "clots": true
       },
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     },
     {
       "_id": "patient-030",
@@ -743,7 +743,7 @@
       ],
       "isPediatric": true,
       "facilityId": "PHC-001",
-      "createdAt": "2026-01-27T12:59:27.703Z"
+      "createdAt": "2026-01-31T07:41:01.193Z"
     }
   ],
   "assessments": [
@@ -790,7 +790,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T10:59:27.703Z"
+      "createdAt": "2026-01-31T05:41:01.193Z"
     },
     {
       "_id": "assessment-002",
@@ -838,7 +838,7 @@
       "validatedByDoctor": true,
       "assignedDoctor": "demo-user-002",
       "assignedDoctorName": "Dr. Sarah Johnson",
-      "createdAt": "2026-01-27T09:59:27.703Z"
+      "createdAt": "2026-01-31T04:41:01.193Z"
     },
     {
       "_id": "assessment-003",
@@ -883,7 +883,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T11:59:27.703Z"
+      "createdAt": "2026-01-31T06:41:01.193Z"
     },
     {
       "_id": "assessment-004",
@@ -927,7 +927,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:29:27.703Z"
+      "createdAt": "2026-01-31T07:11:01.193Z"
     },
     {
       "_id": "assessment-005",
@@ -974,7 +974,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:14:27.703Z"
+      "createdAt": "2026-01-31T06:56:01.193Z"
     },
     {
       "_id": "assessment-006",
@@ -1021,7 +1021,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:39:27.703Z"
+      "createdAt": "2026-01-31T07:21:01.193Z"
     },
     {
       "_id": "assessment-007",
@@ -1068,7 +1068,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:44:27.703Z"
+      "createdAt": "2026-01-31T07:26:01.193Z"
     },
     {
       "_id": "assessment-008",
@@ -1118,8 +1118,8 @@
       "diagnosis": "Suspected Type 2 Diabetes - Uncontrolled",
       "prescription": "Metformin 500mg BD, Lifestyle modifications, Follow-up in 1 week",
       "notes": "Patient counseled on diet and exercise. Lab tests ordered.",
-      "completedAt": "2026-01-27T12:29:27.703Z",
-      "createdAt": "2026-01-27T08:59:27.703Z"
+      "completedAt": "2026-01-31T07:11:01.193Z",
+      "createdAt": "2026-01-31T03:41:01.193Z"
     },
     {
       "_id": "assessment-009",
@@ -1170,7 +1170,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:49:27.703Z"
+      "createdAt": "2026-01-31T07:31:01.193Z"
     },
     {
       "_id": "assessment-010",
@@ -1220,7 +1220,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:34:27.703Z"
+      "createdAt": "2026-01-31T07:16:01.193Z"
     },
     {
       "_id": "assessment-011",
@@ -1272,7 +1272,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:54:27.703Z"
+      "createdAt": "2026-01-31T07:36:01.193Z"
     },
     {
       "_id": "assessment-012",
@@ -1323,7 +1323,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:24:27.703Z"
+      "createdAt": "2026-01-31T07:06:01.193Z"
     },
     {
       "_id": "assessment-013",
@@ -1374,7 +1374,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:51:27.703Z"
+      "createdAt": "2026-01-31T07:33:01.193Z"
     },
     {
       "_id": "assessment-014",
@@ -1426,7 +1426,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:19:27.703Z"
+      "createdAt": "2026-01-31T07:01:01.193Z"
     },
     {
       "_id": "assessment-015",
@@ -1476,7 +1476,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:47:27.703Z"
+      "createdAt": "2026-01-31T07:29:01.193Z"
     },
     {
       "_id": "assessment-016",
@@ -1527,7 +1527,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:41:27.704Z"
+      "createdAt": "2026-01-31T07:23:01.193Z"
     },
     {
       "_id": "assessment-017",
@@ -1577,7 +1577,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:52:27.704Z"
+      "createdAt": "2026-01-31T07:34:01.193Z"
     },
     {
       "_id": "assessment-018",
@@ -1628,7 +1628,7 @@
       "facilityId": "PHC-001",
       "status": "pending",
       "validatedByDoctor": false,
-      "createdAt": "2026-01-27T12:37:27.704Z"
+      "createdAt": "2026-01-31T07:19:01.193Z"
     }
   ],
   "queue": [
@@ -1647,8 +1647,8 @@
       "vitalsRecorded": true,
       "assessment": "assessment-007",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:44:27.704Z",
-      "createdAt": "2026-01-27T12:44:27.704Z"
+      "addedAt": "2026-01-31T07:27:01.193Z",
+      "createdAt": "2026-01-31T07:26:01.193Z"
     },
     {
       "_id": "queue-002",
@@ -1667,9 +1667,9 @@
       "assignedDoctor": "demo-user-002",
       "assignedDoctorName": "Dr. Sarah Johnson",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:14:27.704Z",
-      "calledAt": "2026-01-27T12:29:27.704Z",
-      "createdAt": "2026-01-27T12:14:27.704Z"
+      "addedAt": "2026-01-31T07:01:01.193Z",
+      "calledAt": "2026-01-31T07:11:01.193Z",
+      "createdAt": "2026-01-31T06:56:01.193Z"
     },
     {
       "_id": "queue-003",
@@ -1687,8 +1687,8 @@
       "assessment": "assessment-005",
       "isPediatric": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:14:27.704Z",
-      "createdAt": "2026-01-27T12:14:27.704Z"
+      "addedAt": "2026-01-31T06:58:01.193Z",
+      "createdAt": "2026-01-31T06:56:01.193Z"
     },
     {
       "_id": "queue-004",
@@ -1705,8 +1705,8 @@
       "vitalsRecorded": true,
       "assessment": "assessment-001",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:29:27.704Z",
-      "createdAt": "2026-01-27T12:29:27.704Z"
+      "addedAt": "2026-01-31T07:08:01.193Z",
+      "createdAt": "2026-01-31T07:11:01.193Z"
     },
     {
       "_id": "queue-005",
@@ -1724,8 +1724,8 @@
       "assessment": "assessment-006",
       "isPregnant": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:39:27.704Z",
-      "createdAt": "2026-01-27T12:39:27.704Z"
+      "addedAt": "2026-01-31T07:19:01.193Z",
+      "createdAt": "2026-01-31T07:21:01.193Z"
     },
     {
       "_id": "queue-006",
@@ -1742,8 +1742,8 @@
       "vitalsRecorded": true,
       "assessment": "assessment-003",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T11:59:27.704Z",
-      "createdAt": "2026-01-27T11:59:27.704Z"
+      "addedAt": "2026-01-31T06:46:01.193Z",
+      "createdAt": "2026-01-31T06:41:01.193Z"
     },
     {
       "_id": "queue-007",
@@ -1760,8 +1760,8 @@
       "vitalsRecorded": true,
       "assessment": "assessment-004",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:34:27.704Z",
-      "createdAt": "2026-01-27T12:34:27.704Z"
+      "addedAt": "2026-01-31T07:20:01.193Z",
+      "createdAt": "2026-01-31T07:16:01.193Z"
     },
     {
       "_id": "queue-008",
@@ -1777,8 +1777,8 @@
       "status": "waiting",
       "vitalsRecorded": false,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:49:27.704Z",
-      "createdAt": "2026-01-27T12:49:27.704Z"
+      "addedAt": "2026-01-31T07:30:01.193Z",
+      "createdAt": "2026-01-31T07:31:01.193Z"
     },
     {
       "_id": "queue-009",
@@ -1798,11 +1798,11 @@
       "assignedDoctorName": "Dr. Rajiv Mehta",
       "diagnosis": "Suspected Type 2 Diabetes - Uncontrolled",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T08:59:27.704Z",
-      "calledAt": "2026-01-27T09:29:27.704Z",
-      "completedAt": "2026-01-27T12:29:27.704Z",
+      "addedAt": "2026-01-31T03:41:01.193Z",
+      "calledAt": "2026-01-31T04:11:01.193Z",
+      "completedAt": "2026-01-31T07:11:01.193Z",
       "waitTime": 25,
-      "createdAt": "2026-01-27T08:59:27.704Z"
+      "createdAt": "2026-01-31T03:41:01.193Z"
     },
     {
       "_id": "queue-010",
@@ -1818,8 +1818,8 @@
       "status": "waiting",
       "vitalsRecorded": false,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:54:27.704Z",
-      "createdAt": "2026-01-27T12:54:27.704Z"
+      "addedAt": "2026-01-31T07:35:01.193Z",
+      "createdAt": "2026-01-31T07:36:01.193Z"
     },
     {
       "_id": "queue-011",
@@ -1836,9 +1836,9 @@
       "vitalsRecorded": true,
       "assessment": "assessment-011",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:54:27.704Z",
-      "createdAt": "2026-01-27T12:54:27.704Z",
-      "calledAt": "2026-01-27T13:01:39.230Z",
+      "addedAt": "2026-01-31T07:36:01.193Z",
+      "createdAt": "2026-01-31T07:36:01.193Z",
+      "calledAt": "2026-01-31T07:42:56.062Z",
       "counter": 1
     },
     {
@@ -1858,8 +1858,8 @@
       "isPregnant": true,
       "highRiskPregnancy": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:49:27.704Z",
-      "createdAt": "2026-01-27T12:49:27.704Z"
+      "addedAt": "2026-01-31T07:32:01.193Z",
+      "createdAt": "2026-01-31T07:31:01.193Z"
     },
     {
       "_id": "queue-013",
@@ -1877,8 +1877,8 @@
       "assessment": "assessment-013",
       "isPediatric": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:51:27.704Z",
-      "createdAt": "2026-01-27T12:51:27.704Z"
+      "addedAt": "2026-01-31T07:33:01.193Z",
+      "createdAt": "2026-01-31T07:33:01.193Z"
     },
     {
       "_id": "queue-014",
@@ -1895,8 +1895,8 @@
       "vitalsRecorded": true,
       "assessment": "assessment-015",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:47:27.704Z",
-      "createdAt": "2026-01-27T12:47:27.704Z"
+      "addedAt": "2026-01-31T07:29:01.193Z",
+      "createdAt": "2026-01-31T07:29:01.193Z"
     },
     {
       "_id": "queue-015",
@@ -1913,8 +1913,8 @@
       "vitalsRecorded": true,
       "assessment": "assessment-017",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:52:27.704Z",
-      "createdAt": "2026-01-27T12:52:27.704Z"
+      "addedAt": "2026-01-31T07:34:01.193Z",
+      "createdAt": "2026-01-31T07:34:01.193Z"
     },
     {
       "_id": "queue-016",
@@ -1932,8 +1932,8 @@
       "assessment": "assessment-018",
       "isPregnant": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:37:27.704Z",
-      "createdAt": "2026-01-27T12:37:27.704Z"
+      "addedAt": "2026-01-31T07:19:01.193Z",
+      "createdAt": "2026-01-31T07:19:01.193Z"
     },
     {
       "_id": "queue-017",
@@ -1951,8 +1951,8 @@
       "assessment": "assessment-010",
       "menstrualRelated": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:34:27.704Z",
-      "createdAt": "2026-01-27T12:34:27.704Z"
+      "addedAt": "2026-01-31T07:16:01.193Z",
+      "createdAt": "2026-01-31T07:16:01.193Z"
     },
     {
       "_id": "queue-018",
@@ -1970,8 +1970,8 @@
       "assessment": "assessment-016",
       "menstrualRelated": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:41:27.704Z",
-      "createdAt": "2026-01-27T12:41:27.704Z"
+      "addedAt": "2026-01-31T07:23:01.193Z",
+      "createdAt": "2026-01-31T07:23:01.193Z"
     },
     {
       "_id": "queue-019",
@@ -1989,8 +1989,8 @@
       "assessment": "assessment-012",
       "menstrualRelated": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:24:27.704Z",
-      "createdAt": "2026-01-27T12:24:27.704Z"
+      "addedAt": "2026-01-31T07:06:01.193Z",
+      "createdAt": "2026-01-31T07:06:01.193Z"
     },
     {
       "_id": "queue-020",
@@ -2008,8 +2008,8 @@
       "assessment": "assessment-014",
       "menstrualRelated": true,
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T12:19:27.704Z",
-      "createdAt": "2026-01-27T12:19:27.704Z"
+      "addedAt": "2026-01-31T07:01:01.193Z",
+      "createdAt": "2026-01-31T07:01:01.193Z"
     },
     {
       "_id": "queue-021",
@@ -2029,11 +2029,11 @@
       "assignedDoctorName": "Dr. Sarah Johnson",
       "diagnosis": "Type 2 Diabetes - Well controlled",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T09:59:27.704Z",
-      "calledAt": "2026-01-27T10:29:27.704Z",
-      "completedAt": "2026-01-27T10:59:27.704Z",
+      "addedAt": "2026-01-31T04:41:01.193Z",
+      "calledAt": "2026-01-31T05:11:01.193Z",
+      "completedAt": "2026-01-31T05:41:01.193Z",
       "waitTime": 30,
-      "createdAt": "2026-01-27T09:59:27.704Z"
+      "createdAt": "2026-01-31T04:41:01.193Z"
     },
     {
       "_id": "queue-022",
@@ -2053,11 +2053,11 @@
       "assignedDoctorName": "Dr. Rajiv Mehta",
       "diagnosis": "Viral fever",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T10:29:27.704Z",
-      "calledAt": "2026-01-27T10:59:27.704Z",
-      "completedAt": "2026-01-27T11:29:27.704Z",
+      "addedAt": "2026-01-31T05:11:01.193Z",
+      "calledAt": "2026-01-31T05:41:01.193Z",
+      "completedAt": "2026-01-31T06:11:01.193Z",
       "waitTime": 30,
-      "createdAt": "2026-01-27T10:29:27.704Z"
+      "createdAt": "2026-01-31T05:11:01.193Z"
     },
     {
       "_id": "queue-023",
@@ -2077,11 +2077,11 @@
       "assignedDoctorName": "Dr. Sarah Johnson",
       "diagnosis": "Chronic migraine",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T10:59:27.704Z",
-      "calledAt": "2026-01-27T11:29:27.704Z",
-      "completedAt": "2026-01-27T11:59:27.704Z",
+      "addedAt": "2026-01-31T05:41:01.193Z",
+      "calledAt": "2026-01-31T06:11:01.193Z",
+      "completedAt": "2026-01-31T06:41:01.193Z",
       "waitTime": 30,
-      "createdAt": "2026-01-27T10:59:27.704Z"
+      "createdAt": "2026-01-31T05:41:01.193Z"
     },
     {
       "_id": "queue-024",
@@ -2100,11 +2100,11 @@
       "assignedDoctorName": "Dr. Rajiv Mehta",
       "diagnosis": "Hypothyroidism - stable",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T11:29:27.704Z",
-      "calledAt": "2026-01-27T11:59:27.704Z",
-      "completedAt": "2026-01-27T12:14:27.704Z",
+      "addedAt": "2026-01-31T06:11:01.193Z",
+      "calledAt": "2026-01-31T06:41:01.193Z",
+      "completedAt": "2026-01-31T06:56:01.193Z",
       "waitTime": 30,
-      "createdAt": "2026-01-27T11:29:27.704Z"
+      "createdAt": "2026-01-31T06:11:01.193Z"
     },
     {
       "_id": "queue-025",
@@ -2123,11 +2123,11 @@
       "assignedDoctorName": "Dr. Sarah Johnson",
       "diagnosis": "Healthy - no issues",
       "facilityId": "PHC-001",
-      "addedAt": "2026-01-27T11:59:27.704Z",
-      "calledAt": "2026-01-27T12:14:27.704Z",
-      "completedAt": "2026-01-27T12:39:27.704Z",
+      "addedAt": "2026-01-31T06:41:01.193Z",
+      "calledAt": "2026-01-31T06:56:01.193Z",
+      "completedAt": "2026-01-31T07:21:01.193Z",
       "waitTime": 15,
-      "createdAt": "2026-01-27T11:59:27.704Z"
+      "createdAt": "2026-01-31T06:41:01.193Z"
     }
   ],
   "billing": [
@@ -2181,7 +2181,7 @@
           "amount": 1680,
           "transactionId": "UPI2026012700001",
           "upiId": "khan.m@paytm",
-          "paidAt": "2026-01-27T12:29:27.704Z",
+          "paidAt": "2026-01-31T07:11:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2189,7 +2189,7 @@
       "emailHistory": [
         {
           "email": "khan.m@email.com",
-          "sentAt": "2026-01-27T12:34:27.704Z",
+          "sentAt": "2026-01-31T07:16:01.193Z",
           "status": "sent"
         }
       ],
@@ -2197,8 +2197,8 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "paidAt": "2026-01-27T12:29:27.704Z",
-      "createdAt": "2026-01-27T08:59:27.704Z"
+      "paidAt": "2026-01-31T07:11:01.193Z",
+      "createdAt": "2026-01-31T03:41:01.193Z"
     },
     {
       "_id": "bill-002",
@@ -2250,7 +2250,7 @@
           "amount": 1732,
           "transactionId": "CRD2026012700002",
           "cardLast4": "4242",
-          "paidAt": "2026-01-27T10:59:27.704Z",
+          "paidAt": "2026-01-31T05:41:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2258,7 +2258,7 @@
       "emailHistory": [
         {
           "email": "ravi.v@email.com",
-          "sentAt": "2026-01-27T11:04:27.704Z",
+          "sentAt": "2026-01-31T05:46:01.193Z",
           "status": "sent"
         }
       ],
@@ -2266,8 +2266,8 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "paidAt": "2026-01-27T10:59:27.704Z",
-      "createdAt": "2026-01-27T07:59:27.704Z"
+      "paidAt": "2026-01-31T05:41:01.193Z",
+      "createdAt": "2026-01-31T02:41:01.193Z"
     },
     {
       "_id": "bill-003",
@@ -2295,15 +2295,27 @@
       "discount": 50,
       "tax": 36,
       "totalAmount": 736,
-      "amountPaid": 0,
-      "balanceDue": 736,
-      "status": "pending",
-      "payments": [],
+      "amountPaid": 736,
+      "balanceDue": 0,
+      "status": "paid",
+      "payments": [
+        {
+          "_id": "payment-1769845527939",
+          "method": "cash",
+          "amount": 736,
+          "transactionId": "CASH1769845527906",
+          "paidAt": "2026-01-31T07:45:27.939Z",
+          "processedBy": "demo-user-001",
+          "processedByName": "Dr. Admin Singh"
+        }
+      ],
       "emailHistory": [],
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "createdAt": "2026-01-27T12:39:27.704Z"
+      "createdAt": "2026-01-31T07:21:01.193Z",
+      "paidAt": "2026-01-31T07:45:27.939Z",
+      "updatedAt": "2026-01-31T07:45:27.939Z"
     },
     {
       "_id": "bill-004",
@@ -2361,7 +2373,7 @@
           "method": "cash",
           "amount": 2000,
           "transactionId": "CASH2026012700003",
-          "paidAt": "2026-01-27T10:59:27.704Z",
+          "paidAt": "2026-01-31T05:41:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2370,7 +2382,7 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "createdAt": "2026-01-27T09:59:27.704Z"
+      "createdAt": "2026-01-31T04:41:01.193Z"
     },
     {
       "_id": "bill-005",
@@ -2429,7 +2441,7 @@
           "amount": 2919,
           "transactionId": "UPI2026012700004",
           "upiId": "kavita.j@gpay",
-          "paidAt": "2026-01-27T12:44:27.704Z",
+          "paidAt": "2026-01-31T07:26:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2437,7 +2449,7 @@
       "emailHistory": [
         {
           "email": "kavita.j@email.com",
-          "sentAt": "2026-01-27T12:49:27.704Z",
+          "sentAt": "2026-01-31T07:31:01.193Z",
           "status": "sent"
         }
       ],
@@ -2445,8 +2457,8 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "paidAt": "2026-01-27T12:44:27.704Z",
-      "createdAt": "2026-01-27T11:59:27.704Z"
+      "paidAt": "2026-01-31T07:26:01.193Z",
+      "createdAt": "2026-01-31T06:41:01.193Z"
     },
     {
       "_id": "bill-006",
@@ -2490,7 +2502,7 @@
           "method": "cash",
           "amount": 1029,
           "transactionId": "CASH2026012700005",
-          "paidAt": "2026-01-27T12:14:27.704Z",
+          "paidAt": "2026-01-31T06:56:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2500,8 +2512,8 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "paidAt": "2026-01-27T12:14:27.704Z",
-      "createdAt": "2026-01-27T10:59:27.704Z"
+      "paidAt": "2026-01-31T06:56:01.193Z",
+      "createdAt": "2026-01-31T05:41:01.193Z"
     },
     {
       "_id": "bill-007",
@@ -2543,15 +2555,27 @@
       "discount": 0,
       "tax": 165,
       "totalAmount": 3465,
-      "amountPaid": 0,
-      "balanceDue": 3465,
-      "status": "pending",
-      "payments": [],
+      "amountPaid": 3465,
+      "balanceDue": 0,
+      "status": "paid",
+      "payments": [
+        {
+          "_id": "payment-1769845580174",
+          "method": "cash",
+          "amount": 3465,
+          "transactionId": "CASH1769845580144",
+          "paidAt": "2026-01-31T07:46:20.174Z",
+          "processedBy": "demo-user-001",
+          "processedByName": "Dr. Admin Singh"
+        }
+      ],
       "emailHistory": [],
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "createdAt": "2026-01-27T12:29:27.704Z"
+      "createdAt": "2026-01-31T07:11:01.193Z",
+      "paidAt": "2026-01-31T07:46:20.174Z",
+      "updatedAt": "2026-01-31T07:46:20.174Z"
     },
     {
       "_id": "bill-008",
@@ -2596,7 +2620,7 @@
           "amount": 1890,
           "transactionId": "UPI2026012700006",
           "upiId": "meena.d@paytm",
-          "paidAt": "2026-01-27T12:09:27.704Z",
+          "paidAt": "2026-01-31T06:51:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2604,7 +2628,7 @@
       "emailHistory": [
         {
           "email": "meena.d@email.com",
-          "sentAt": "2026-01-27T12:11:27.704Z",
+          "sentAt": "2026-01-31T06:53:01.193Z",
           "status": "sent"
         }
       ],
@@ -2612,8 +2636,8 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "paidAt": "2026-01-27T12:09:27.704Z",
-      "createdAt": "2026-01-27T11:29:27.704Z"
+      "paidAt": "2026-01-31T06:51:01.193Z",
+      "createdAt": "2026-01-31T06:11:01.193Z"
     },
     {
       "_id": "bill-009",
@@ -2665,7 +2689,7 @@
           "amount": 1500,
           "transactionId": "CRD2026012700007",
           "cardLast4": "8901",
-          "paidAt": "2026-01-27T12:24:27.704Z",
+          "paidAt": "2026-01-31T07:06:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2674,7 +2698,7 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "createdAt": "2026-01-27T11:49:27.704Z"
+      "createdAt": "2026-01-31T06:31:01.193Z"
     },
     {
       "_id": "bill-010",
@@ -2718,7 +2742,7 @@
           "method": "cash",
           "amount": 683,
           "transactionId": "CASH2026012700008",
-          "paidAt": "2026-01-27T12:39:27.704Z",
+          "paidAt": "2026-01-31T07:21:01.193Z",
           "processedBy": "demo-user-004",
           "processedByName": "Staff Amit Kumar"
         }
@@ -2728,8 +2752,8 @@
       "facilityId": "PHC-001",
       "createdBy": "demo-user-004",
       "createdByName": "Staff Amit Kumar",
-      "paidAt": "2026-01-27T12:39:27.704Z",
-      "createdAt": "2026-01-27T12:19:27.704Z"
+      "paidAt": "2026-01-31T07:21:01.193Z",
+      "createdAt": "2026-01-31T07:01:01.193Z"
     }
   ],
   "notifications": [
@@ -2742,7 +2766,7 @@
       "content": "Your payment of ₹1,680 has been received successfully.",
       "billId": "bill-001",
       "status": "sent",
-      "sentAt": "2026-01-27T12:34:27.704Z",
+      "sentAt": "2026-01-31T07:16:01.193Z",
       "facilityId": "PHC-001"
     },
     {
@@ -2754,7 +2778,7 @@
       "content": "Your payment of ₹1,732 has been received successfully.",
       "billId": "bill-002",
       "status": "sent",
-      "sentAt": "2026-01-27T11:04:27.704Z",
+      "sentAt": "2026-01-31T05:46:01.193Z",
       "facilityId": "PHC-001"
     },
     {
@@ -2766,7 +2790,7 @@
       "content": "Your payment of ₹2,919 has been received successfully.",
       "billId": "bill-005",
       "status": "sent",
-      "sentAt": "2026-01-27T12:49:27.704Z",
+      "sentAt": "2026-01-31T07:31:01.193Z",
       "facilityId": "PHC-001"
     },
     {
@@ -2777,7 +2801,7 @@
       "subject": "Your Queue Status Update",
       "content": "You are now being attended by Dr. Sarah Johnson.",
       "status": "sent",
-      "sentAt": "2026-01-27T12:29:27.705Z",
+      "sentAt": "2026-01-31T07:11:01.193Z",
       "facilityId": "PHC-001"
     },
     {
@@ -2789,10 +2813,10 @@
       "content": "You have a pending payment of ₹736. Please complete the payment at the billing counter.",
       "billId": "bill-003",
       "status": "sent",
-      "sentAt": "2026-01-27T12:54:27.705Z",
+      "sentAt": "2026-01-31T07:36:01.193Z",
       "facilityId": "PHC-001"
     }
   ],
   "chatMessages": [],
-  "savedAt": "2026-01-27T13:11:20.640Z"
+  "savedAt": "2026-01-31T07:51:40.821Z"
 }
